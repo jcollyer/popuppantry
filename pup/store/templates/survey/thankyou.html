@@ -1,0 +1,10 @@
+{% extends "survey/base.html" %}
+{% load i18n %}
+
+{% block chromeless_exit_link %}
+<a href="/history/" class="chromeless-exit-link align-right">{% trans "Return to My Orders" %}</a>
+{% endblock %}
+
+{% block content %}
+<h2>{{ title|default:_("Thank you for you submission!") }}</h2>
+{% endblock %}

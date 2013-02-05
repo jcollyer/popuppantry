@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block title %}
+    Pricing | Pop-Up Pantry
+{% endblock title %}
+
+
+{% block content %}
+
+<div class="plan-info">
+	<h2>Premiere Dining Plans</h2>
+	<h3>Choose to receive as many dinners each month as you want, or try Pop-Up Pantry by ordering just one dinner and be automatically enrolled in our Gourmand plan. Because we're a subscription club, you will never miss our exclusive offerings &mdash; and you're never obligated to buy.</h3> 
+
+    <h3>On the 1st of each month we'll alert you via email that new menus are available to choose from. Log-in to fill up your pantry with the dishes you like, or simply tell us by the 7th of the month that you want to skip and you will not be billed. After your first order each month, you may continue to order throughout the month by ordering a minimum of 2 dinners at any time. You can upgrade or downgrade your subscription at any time, or deactivate your account if you choose. It’s restaurant quality at a takeout price.
+	</h3>
+	{% if user.is_authenticated %}
+
+  <h3 class="plan">You're in the {{ user_plan.name }} plan.</h3>
+
+
+
+
+	{% endif %}
+</div>
+    {% if kissmetrics_data %}
+        <script type="text/javascript">
+        
+        if (typeof _kmq != 'undefined') {
+            _kmq.push(['record', '{{kissmetrics_data}}', {'plan level': '{{user_plan.quantity}}', 'plan price': '{{user_plan.price}}'}]);
+        }
+
+        </script>
+
+
+    {% endif %}
+
+	<div class="plans box">
+	    
+		<ul>
+	    {% for p in plan_list %}
+	    	{% if p.active %}
+        <li class="{{ p.name }}">
+	    		<div class="plan">
+	    			{% if p.quantity == 8 %}
+	    				<div class="best-value"></div>
+	    			{% endif %}
+	    			{% if p.quantity == 4 %}
+	    				<div class="most-popular-tail-right"></div>
+	    				<div class="most-popular">Most Popular</div>
+	    				<div class="most-popular-tail-left"></div>
+	    			{% endif %}
+	    			{% if p.quantity == 2 %}
+	    				<div class="starter-plan">
+	    					Starter Plan
+	    				</div>
+	    			{% endif %}
+
+	    			<div class="plans-divider"></div>
+
+					<h3>{{ p.name }}</h3>
+
+	    			<div class="plans-divider"></div>
+
+					<p><strong>{{ p.quantity }} dinner plan</strong></p>
+
+					<p>
+						<strong>${{ p.per_meal|floatformat:"2" }} per person</strong><br/>
+						<span class="serves">
+							{{ p.quantity }} dinners: Each serves 2 people generously.<br/>
+						<em>That's just ${{ p.price|floatformat:"0" }} per dinner!</em><br/>
+						</span>
+					</p>
+
+					<p><strong>FREE Shipping</strong></p>
+					<p style="border: none">
+						<strong>${{ p.total|floatformat:"0" }}</strong><br/>
+						<span class="billed">billed monthly</span>
+					</p>
+					{% if user.is_authenticated %}
+					{% if user_plan.name != p.name %}
+					<form method="post" action="/plans/submit/">
+						{% csrf_token %}
+						<input type="hidden" name="group" value="{{ p.group.id }}" />
+						<input type="submit" class="orange_button sign_up_button" value="Select this Plan" />
+					</form>
+					{% else %}
+					<div class="grey_button sign_up_button">Your Current Plan</div>
+					{% endif %}
+					{% else %}
+					<a class="grey_button sign_up_button" href="/accounts/register">Select this Plan</a>
+					{% endif %}
+					
+				</div>
+			</li>
+	    	{% endif %}
+	    {% endfor %}
+		</ul>
+
+		<div class="more">
+			Looking to order more than 8 meals per month? <a href="mailto:service@popuppantry.com?subject=I'm interested in more than 8 dinners a month">Click here</a>
+		</div>
+
+	</div>
+
+{% endblock content %}
+

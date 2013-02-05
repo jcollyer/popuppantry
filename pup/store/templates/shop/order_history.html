@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load local_ab_tests %}
+{% load satchmo_currency %}
+{% load satchmo_order normalize_decimal %}
+
+{% block body_class %}{{ block.super }} theme-yeo {% endblock %}
+
+{% block overlay %}
+<div class="overlay overlay-order-survey">
+  &nbsp;
+</div><!-- .overlay.overlay-order-survey -->
+{% endblock %}
+
+{% block navbar %}
+  <li class="first"><a href="{{ shop_base }}/">{% trans "Home" %}</a></li>
+  <li><a href="{% url satchmo_account_info %}">{% trans "Account" %}</a></li>
+  <li>{% trans "Order History" %}</li>
+{% endblock %}
+
+{% block content %}
+<section id="orderhistory">
+  <h2>{% trans "Order History" %}</h2>
+  {% if orders %}
+  {% for order, order_items in orders %}
+  <div class="index-card">
+    <article class="order">
+      <div class="index-card-header clearfix">
+        {% if order.can_review %}
+        {% if not order.is_review_complete %}
+        <section class="index-card-header-item align-right order-review-link">
+          <h4>
+            <a class="survey-link {% if request.user.id|use_variant:"1:2" %}as-overlay{% endif %}" data-href="{% url survey-order order.order_number %}">{% trans "Review this order" %}</a>
+          </h4>
+        </section><!-- .review-link -->
+        {% endif %}{# not order.is_review_complete #}
+        {% endif %}{# order.can_review #}
+        <section class="index-card-header-item align-left orderdate">
+          <a href="{% url satchmo_order_tracking order.order_number %}">
+            <label>{% trans "Placed" %}</label>
+            <div class="value">
+              <time datetime="{{ order.time_stamp }}" pubdate>
+                {{ order.time_stamp|date:"F jS, Y" }}
+              </time>
+            </div>
+          </a>
+        </section><!-- .orderdate -->
+        <section class="index-card-header-item align-left ordernumber">
+          <a href="{% url satchmo_order_tracking order.order_number %}">
+            <label>{% trans "Order" %}</label>
+            <div class="value">#{{ order.order_number }}</div>
+          </a>
+        </section><!-- .ordernumber -->
+        <section class="index-card-header-item align-left orderstatus">
+          <a href="{% url satchmo_order_tracking order.order_number %}">
+            <label>{% trans "Status" %}</label>
+            <div class="value">{{ order.status }}</div>
+          </a>
+        </section><!-- .orderstatus -->
+        <section class="index-card-header-item align-left ordertotal">
+          <a href="{% url satchmo_order_tracking order.order_number %}">
+            <label>{% trans "Price" %}</label>
+            <div class="value">{{order.total|currency}}</div>
+          </a>
+        </section><!-- .ordertotal -->
+      </div> <!-- index-card-header -->
+
+      <div class="index-card-main clearfix">
+        <section class="items">
+          {% for item in order_items %}
+          <article class="orderitem">
+            <section class="orderitemqty">
+              {{ item.quantity|normalize_decimal }}
+            </section>
+            <article class="product">
+              <section class="product-details">
+                <section class="product-image">
+                  <a href="/product/{{item.product.slug}}/">
+                    <img src="{{ item.product.entree_image }}"
+                      alt="{% trans "food image" %}" />
+                  </a>
+                </section>
+                {% comment %}
+                <section class="product-facts">
+                  {{item.product.user_home_overlay|safe}}
+                </section>
+                {% endcomment %}
+                {% if order.can_review and item.can_review %}
+                {% if not item.is_review_complete %}
+                <section class="product-review-badge">
+                  <a class="survey-link review-badge{% if request.user.id|use_variant:"1:2" %} as-overlay{% endif %}"
+                    data-href="{% url survey-order order.order_number %}?selected_product={{item.product.slug}}">
+                    {% trans "Review this menu "%}
+                  </a>
+                </section>
+                {% else %}
+                 <section class="product-review-badge">
+                  <span class="review-badge-complete">
+                    {% trans "Thank you for review"%}
+                  </span>
+                </section>
+                {% endif %}{# not item.is_review_complete #}
+                {% endif %}{# and order.can_review and item.can_review #}
+              </section><!-- .product-details -->
+
+              <h3>
+                <a href="/product/{{item.product.slug}}/">
+                  {{ item.product.name }}
+                </a>
+              </h3>
+
+            </article><!-- .product -->
+          </article><!-- .orderitem -->
+          {% endfor %}
+        </section><!-- .items -->
+      </div><!-- .index-card-main -->
+    </article><!-- .order -->
+  </div><!-- .index-card -->
+  {% endfor %}
+
+  {% else %}
+    <p>{% trans "You haven't made any orders yet." %}</p>
+  {% endif %}{# orders #}
+
+</section><!-- #orderhistory -->
+
+{% endblock %}
+

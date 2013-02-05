@@ -1,0 +1,150 @@
+  <!DOCTYPE html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width">
+        <link rel="stylesheet" href="../static/css/style.css">
+         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+        <script src="../static/js/jquery.cookie.js" type="text/javascript"></script>
+    </head>
+    <body>
+      <div id="mask"></div>
+      <div id="landing_pages" style="display:none;">landing_page</div>
+        <div id="landing_page_container">
+            <div id="landing_page_header">
+                <img class="logo" src="../static/img/logo.jpg" />
+                <img class="bigPic" src="../static/img/bigPic.jpg" />
+                <div class="alreadyMember"><p>Already a Member?<span class="landing_sign_in"> Sign In</span></p></div>
+                <div class="big_landing_header"><h1>SIGN-UP TODAY! LOREM IPSUM DOLOR SIT AMET, CONSECTETUR ADIPISICING ELIT INCIDIDUNT.</h1></div>
+       
+                <div class="landing_sign_up_style3">
+                    <form method="post" action="." id="landing_form">
+                    {% csrf_token %}
+                        <h2>SIGN-UP TODAY!</h2>
+                        <ul>
+                            <li>
+                                <input type="text" id="id_first_name" name="first_name" placeholder="First Name" value="">  
+                            </li>
+                            <li>
+                                <input type="text" value="" id="id_last_name" name="last_name" placeholder="Last Name">  
+                            </li>
+                            <li class="landing_email_li">
+                                <input type="text" value="" class="landing_email_input" id="id_email" name="reg_email" placeholder="Email">  
+                            </li>
+                            <li>
+                                <input type="text" value="" class="landing_password_input" id="id_password" name="password1" placeholder="Password">  
+                            </li>
+                            <li>
+                                <input type="submit" class="orange_button landing_sign_up_submit" value="SIGN UP TODAY!">  
+                            </li>
+                        </ul>
+                    </form>
+                </div>
+            </div>
+            <div class="landing_section clearfix">
+                <h1>HEADLINE HERE</h1>
+                <div class="landing_img floatLeft">
+                    <img class="landing_section_img" src="../static/img/landing_pic.jpg" />
+                    <div class="landing_img_text">
+                        <h3>$10 Off!</h3>
+                        <p><span class="landing_sign_up_button">Sign-Up Today!</span></p>
+                    </div>
+                </div>
+                <div class="landing_section_text">
+                    <p>
+                        Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum
+                    </p>
+                </div>
+                <h2><span class="landing_section_sign_up"><span class="landing_sign_up_button">SIGN UP TODAY!</span></span></h2>
+            </div>
+            <div class="landing_section clearfix">
+                <h1>HEADLINE HERE</h1>
+                <div class="landing_img floatRight">
+                    <img class="landing_section_img" src="../static/img/landing_pic2.jpg" />
+                    <div class="landing_img_text">
+                        <h3>$10 Off!</h3>
+                        <p><span class="landing_sign_up_button">Sign-Up Today!</span></p>
+                    </div>
+                </div>
+                <div class="landing_section_text">
+                    <p>
+                        Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum
+                    </p>
+                </div>
+                <h2><span class="landing_section_sign_up"><span class="landing_sign_up_button">SIGN UP TODAY!</span></span></h2>
+            </div>
+            <div class="landing_section clearfix">
+                <h1>HEADLINE HERE</h1>
+                <div class="landing_img floatLeft">
+                    <img class="landing_section_img" src="../static/img/landing_pic3.jpg" />
+                    <div class="landing_img_text">
+                        <h3>$10 Off!</h3>
+                        <p><span class="landing_sign_up_button">Sign-Up Today!</span></p>
+                    </div>
+                </div>
+                <div class="landing_section_text">
+                    <p>
+                        Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum
+                    </p>
+                </div>
+                <h2><span class="landing_section_sign_up"><span class="landing_sign_up_button">SIGN UP TODAY!</span></span></h2>
+            </div>
+            <div class="landing_section clearfix">
+                <h1>HEADLINE HERE</h1>
+                <div class="landing_img floatRight">
+                    <img class="landing_section_img" src="../static/img/landing_pic4.jpg" />
+                    <div class="landing_img_text">
+                        <h3>$10 Off!</h3>
+                        <p><span class="landing_sign_up_button">Sign-Up Today!</span></p>
+                    </div>
+                </div>
+                <div class="landing_section_text">
+                    <p>
+                        Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum
+                    </p>
+                </div>
+                <h2><span class="landing_section_sign_up"><span class="landing_sign_up_button">SIGN UP TODAY!</span></span></h2>
+            </div>
+        </div>
+        <div id="landing_footer">
+                <div class="cookCross">
+                    <img src="../static/img/cook-cross.png" />
+                </div>
+                <div class="landing_footer_header">
+                    <div class="landing_footer_header_left"></div>
+                    <div class="landing_footer_header_middle">
+                        <p>$10 OFF YOUR FIRST ORDER! SIGN-UP TODAY!</p>
+                    </div>
+                    <div class="landing_footer_header_right"></div>
+                </div>
+                <div class="landing_footer_form">
+                    <form method="post" action="." id="landing_form">
+                    {% csrf_token %}
+                        <ul>
+                            <li>
+                                <input type="text" value="" id="id_first_name" name="first_name" placeholder="First Name">  
+                            </li>
+                            <li>
+                                <input type="text" value="" id="id_last_name" name="last_name" placeholder="Last Name">  
+                            </li>
+                            <li>
+                                <input type="text" value="" id="id_reg_email" name="reg_email" placeholder="Email">  
+                            </li>
+                            <li>
+                                <input type="text" value="" id="id_password" name="password1" placeholder="Password">  
+                            </li>
+                            <li>
+                                <input type="submit" class="orange_button landing_sign_up_submit" value="SIGN UP TODAY!">  
+                            </li>
+                        </ul>
+                    </form>
+                </div>
+            </div>
+{% include "flatpages/landing_page_script.html" %}
+
+<script>document.write('<script src="http://' + (location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1"></' + 'script>')</script>
+
+    </body>
+</html>

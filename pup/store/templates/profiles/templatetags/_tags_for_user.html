@@ -1,0 +1,9 @@
+{% load i18n %}
+{# TODO: add content_user_tag_index url back #}
+<ul>
+    {% for tag in tags %}
+    <li><a href="{# url content_user_tag_index username=user.username tag=tag.slug #}">{{ tag }}</a>{% if forloop.last %}{% else %},{% endif %}</li>
+    {% empty %}
+        <li>{% trans "No tags for this user" %}</li>
+    {% endfor %}
+</ul>

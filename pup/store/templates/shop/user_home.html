@@ -1,0 +1,253 @@
+{% extends "base.html" %}
+
+{% block extra_head %}
+<script type="text/javascript">
+var _qevents = _qevents || [];
+
+_qevents.push(
+{qacct:"p-CtGRuC-swqzEZ",labels:"_fp.event.User Home Page"}
+);
+</script>
+<noscript>
+<img src="//secure.quantserve.com/pixel/p-CtGRuC-swqzEZ.gif?labels=_fp.event.User+Home+Page" style="display: none;" border="0" height="1" width="1" alt="Quantcast"/>
+</noscript>
+
+{% endblock extra_head %}
+
+
+
+{% block content %}
+    <div class="csrf">{{ csrf_token }}</div>
+    {% if messages %}
+     {% include "persistent_messages/message/includes/messages.jquery.html" %}
+    {% endif %}
+
+<div id="user_home">
+    <div class="menus user_home">
+
+        <h2>Your personalized menu selections this month</h2>
+
+        {% for product in my_menus %}
+         <div class="user_box">
+            <ul class="additional">
+                <li class="box">
+                {% if product.inventory == 'OS' %}
+                    <div class="order-arrow waitlist-item"><div class="order-stiches">Wait List</div></div>
+                {% else %}
+                    <div class="order-arrow {% if not product.is_gift %} order-item {% else %}gift-item{% endif %}"><div class="order-stiches">Order</div></div>
+                {% endif %}
+                <div class="menu-slug">{{ product.slug }}</div>
+                <div class="menu-name">{{ product.name }}</div>
+
+                    <a href="/product/{{ product.slug }}/">
+                    <div class="image">
+                        <div class="food-image">
+                            <img src="{{ product.entree_image }}" />
+                          {% if product.inventory == 'OS' %} <span class="os"><span class="flag_corner"></span><p class="button_text">WAIT<br /><span class="button_bigger_text">LIST</span></p></span> {% endif %}
+                          {% if product.inventory == 'LS' %} <span class="ls"><span class="flag_corner"></span><p class="button_text"><span class="button_smaller_text">RUNNING</span><br /><span class="button_bigger_text">LOW</span></p></span> {% endif %}
+
+
+                        </div>
+
+                        <div class="popover">
+                        <p>
+                            {{product.user_home_overlay|safe}}
+                        </p>
+                        </div>
+                    </div>
+                    <h3>{{ product.name }}</h3></a>
+                <p class="chef-name">{{product.chef_display}}</p>
+                </li>
+            </ul>
+        </div>
+
+        {% endfor %}
+
+
+        <div class="divider"></div>
+
+        <h2>Additional recommendations from our chefs</h2>
+
+            <div id="user_menu">
+            {% for product in products %}
+            {% if product.active  %}
+            <div class="user_box">
+              <ul class="additional">
+                <li class="box">
+                {% if product.inventory == 'OS' %}
+                    <div class="order-arrow waitlist-item"><div class="order-stiches">Wait List</div></div>
+                {% else %}
+                    <div class="order-arrow {% if not product.is_gift %} order-item {% else %}gift-item{% endif %}"><div class="order-stiches">Order</div></div>
+                {% endif %}
+                <div class="menu-slug">{{ product.slug }}</div>
+                <div class="menu-name">{{ product.name }}</div>
+                    <a href="/product/{{ product.slug }}/">
+                    <div class="image">
+                        <div class="food-image">
+                            <img src="{{ product.entree_image }}" />
+                          {% if product.inventory == 'OS' %} <span class="os"><span class="flag_corner"></span><p class="button_text">WAIT<br /><span class="button_bigger_text">LIST</span></p></span> {% endif %}
+                          {% if product.inventory == 'LS' %} <span class="ls"><span class="flag_corner"></span><p class="button_text"><span class="button_smaller_text">RUNNING</span><br /><span class="button_bigger_text">LOW</span></p></span> {% endif %}
+                        </div>
+
+                        <div class="popover">
+                        <p>
+                            {{product.user_home_overlay|safe}}
+                        </p>
+                        </div>
+                    </div>
+                    <h3>{{ product.name }}</h3></a>
+                <p class="chef-name">{{product.chef_display}}</p>
+                </li>
+              </ul>
+            </div>
+            {% endif %}
+            {% endfor %}
+
+        </div>
+
+
+        {% include "help.html" %}
+
+    </div>
+</div>
+<div id="waitlist-overlay">
+    <h2>Menu Added to Wait List</h2>
+
+    <p><strong>Thanks for letting us know you’re interested in this menu.</strong></p>
+    <p>
+        It sure has been popular, so our chefs will be preparing another
+        batch soon. We'll email you as soon as it’s available again. And
+        remember, Pop-Up Pantry is “no reservations” so be sure to order
+        this menu quickly once it’s back!
+    </p>
+
+    <p class="continue">
+        <a href="/" class="action">Back to Menus</a>
+    </p>
+</div>
+{% endblock content %}
+
+
+{% block extra_js %}
+
+    <script type="text/javascript">
+            if (typeof _kmq != 'undefined') {
+                    _kmq.push(['record', 'Viewed User Home']);
+            }
+    </script>
+
+    {% if new_sign_up %}
+
+    <script type="text/javascript">
+    /* <![CDATA[ */
+    var google_conversion_id = 1022663242;
+    var google_conversion_language = "en";
+    var google_conversion_format = "3";
+    var google_conversion_color = "ffffff";
+    var google_conversion_label = "0vUqCIbgjAMQyrTS5wM";
+    var google_conversion_value = 0;
+    /* ]]> */
+    </script>
+    <script type="text/javascript" src="https://www.googleadservices.com/pagead/conversion.js">
+    </script>
+    <noscript>
+    <div style="display:inline;">
+    <img height="1" width="1" style="border-style:none;" alt="" src="https://www.googleadservices.com/pagead/conversion/1022663242/?value=0&amp;label=0vUqCIbgjAMQyrTS5wM&amp;guid=ON&amp;script=0"/>
+    </div>
+    </noscript>
+
+
+
+    {% endif %}
+    {% if fb_sign_up %}
+    <script type="text/javascript" charset="utf-8">
+
+                    if (typeof _kmq != 'undefined') {
+                        _kmq.push(['record', 'signed up', {'plan level':'Beta Invite'}]);
+                        var _qevents = _qevents || [];
+                        _qevents.push(
+                            {qacct:"p-CtGRuC-swqzEZ",labels:"_fp.event.Beta Invite"}
+                        );
+                    }
+    </script>
+    {% endif %}
+
+{% if messages %}
+<script type="text/javascript">
+//<![CDATA[
+    var messageSelector = '.messages li';
+    var closeSelector = '.message-close';
+    var closeAllSelector = '.message-close-all';
+    $.fn.messageClose = function() {
+        $(this).fadeTo('fast', 0, function() {
+            $(this).hide('fast', function() {
+                $(this).remove();
+            });
+        });
+    };
+    $.fn.messageCloseTimeout = function(interval) {
+        var _this = $(this);
+        setTimeout(function() {
+            _this.messageClose();
+            var close = _this.find(closeSelector);
+            if (close.attr('href') != '#') {
+                $.ajax({
+                    url: $(this).attr('href')
+                })
+            }
+        }, interval)
+    };
+    $(closeSelector).click(function(event) {
+        event.preventDefault();
+        if ($(this).attr('href') != '#') {
+            $.ajax({
+                url: $(this).attr('href')
+            })
+        }
+        if ($(messageSelector).length <= 2) {
+            $(closeAllSelector).messageClose();
+        }
+        $(this).closest(messageSelector).messageClose();
+    });
+    $(closeAllSelector).click(function(event) {
+        event.preventDefault();
+        $.ajax({
+            url: $(this).attr('href')
+        })
+        $(this).messageClose();
+        $(messageSelector).messageClose();
+    });
+
+
+    $('.message-post button').live('click', function(e) {
+        var button = $(this);
+        var form = button.closest('form');
+        console.log("form: " + form);
+        console.log("button: " + this);
+        $.ajax({
+            type: 'POST',
+            url: form.attr('action'),
+            data: form.serializeArray(),
+            success: function(resp, textStatus) {
+                if (resp.success) {
+                    button.replaceWith("<p>You've skipped this month. Your credit card will not be charged, but you may still order at any time.</p>");
+                } else {
+                    form.submit();
+                }
+            },
+            error: function(xhr, textStatus, errorThrown) {
+                console.log('failed');
+                console.log(textStatus);
+                form.submit();
+            }
+
+        });
+        e.preventDefault();
+    });
+
+//]]>
+</script>
+{% endif %}
+
+
+{% endblock extra_js %}

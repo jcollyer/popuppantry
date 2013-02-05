@@ -1,0 +1,11 @@
+{# Example message detail template #}
+<div class="message{% if message.tags %} {{ message.tags }}{% endif %}>">
+    {% if message.subject %}<h1>{{ message.subject }}</h1>{% endif %}
+    <p>{{ message.created|date }}</p>
+    <p>{{ message.message }}</p>
+    <a class="button long" href="{{message.link}}">{{message.link_text}}</a>
+    {% if message.link_post %}
+    <! -- this will need to do JS to post the message.link_post to a url -->
+    {% endif %}
+
+</div>

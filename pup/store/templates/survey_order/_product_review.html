@@ -1,0 +1,34 @@
+{% comment %}
+Render list of product-instances.
+
+expects:
+-------
+
+:param products: List of `Product`-instances.
+
+                 required interface: `product.next_url`
+                 optional interface: `next_url_as_overlay`
+
+{% endcomment %}
+
+<ul class="product-reviews">
+  {% for product in products %}
+  <li class="product-review">
+    <section class="product-review-image">
+    <a class="{% if next_url_as_overlay %}as-overlay{% endif %}" href="{{ product.next_url }}">
+      <img src="{{ product.entree_image}}" width="290" height="200" />
+    </a>
+    </section><!-- .product-review-image -->
+    <section class="product-review-metadata">
+      <a class="{% if next_url_as_overlay %}as-overlay{% endif %}" href="{{ product.next_url }}">
+        <div class="product-review-title">
+        {{ product.name }}
+        </div>
+        <div class="product-review-chef">
+          {{ product.chef_display }}
+        </div>
+      </a>
+    </section><!-- .product-review-metadata -->
+  </li><!-- .product-review -->
+  {% endfor %}
+</ul><!-- .product-reviews -->

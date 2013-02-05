@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}
+{{ flatpage.title }} | Pop-Up Pantry 
+{% endblock title %}
+
+{% block content %}
+
+		<div id="flatpage">
+
+			<h2>{{ flatpage.title }}</h2>
+
+      <div class="box">
+        {{ flatpage.content }}
+      </div>
+
+		</div>
+
+{% endblock content %}
+

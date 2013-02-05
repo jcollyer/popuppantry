@@ -1,0 +1,35 @@
+{% extends "profiles/base.html" %}
+
+{# unstyled #}
+
+{% load i18n %}
+{% load core_tags %}
+
+{% block title %}{% blocktrans with profile_full_name=profile.get_full_name %}Profile for {{ profile_full_name }}{% endblocktrans %}{% endblock title %}
+
+{% block pagetitle %}{% blocktrans with profile_full_name=profile.get_full_name %}Profile for {{ profile_full_name }}{% endblocktrans %}{% endblock pagetitle %}
+
+{% block content %}
+<h2><a href="{% url profile_list %}">{% trans "Show all profiles" %}</a></h2>
+
+<div id="actions">
+  {# profile options are standardized with this include just to make life easier. #}
+  {% include "profiles/snippets/profile_actions.html" %}
+</div>
+
+<div id="profile-detail">
+    <p>{{ profile.get_full_name }}</p>
+    <p>{{ profile.title }}</p>
+    <p>{{ profile.email }}</p>
+    <p>{{ profile.bio }}</p>
+    <p>{% tag_linker profile.tags.all %}</p>
+</div>
+
+<hr/>
+
+<div id="profile-activities">
+    <h2>{% trans "Activities" %}</h2>
+    {% include "activities/snippets/_activity_list.html" %}
+</div>
+
+{% endblock content %}

@@ -1,0 +1,54 @@
+{% extends "profiles/base.html" %}
+
+{# unstyled #}
+
+{% load core_tags %}
+{% load i18n %}
+
+{% block title %}{% trans "All Insocial Users" %}{% endblock title %}
+
+{% block pagetitle %}{% trans "All Insocial Users" %}{% endblock pagetitle %}
+
+{% block content %}
+<table>
+    <thead>
+        <tr>
+            <th class="first">{% trans "Name" %}</th>
+            <th>{% trans "Title" %}</th>
+            <th>{% trans "Tags" %}</th>
+            <th class="last">{% trans "Action" %}</th>
+        </tr>
+    </thead>
+    {% if is_paginated %}
+    <tfoot>
+        <tr>
+        {% if has_previous %}
+            <td><a href="{% url profile_list %}page{{ page_obj.previous_page_number }}/" class="button">{% trans "Previous Page" %}</a></td>
+        {% else %}
+        <td></td>
+        {% endif %}
+        <td>&nbsp;</td>
+        {% if has_next %}
+            <td><a href="{% url profile_list %}page{{ page_obj.next_page_number }}/" class="button">{% trans "Next Page" %}</a></td>
+        {% else %}
+        <td></td>
+        {% endif %}
+        </tr>
+    </tfoot>
+    {% endif %}
+    <tbody>
+        {% for profile in profile_list %}
+            <tr class="{% cycle 'even' 'odd' %}">
+                <td><!-- TODO: profile pic here -->{{ profile.get_profile_link|safe }}</td>
+                <td>{{ profile.title }}</td>
+                <td>{% tag_linker profile.tags.all %}</td>
+                <td>
+                  {# profile options are standardized with this include just to make life easier. #}
+                  {% include "profiles/snippets/profile_actions.html" %}
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock content %}

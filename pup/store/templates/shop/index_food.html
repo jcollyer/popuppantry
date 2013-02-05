@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+
+
+
+
+{% block content %}
+            <script type="text/javascript">
+            if (typeof _kmq != 'undefined') {
+                    _kmq.push(['record', 'Viewed index with food']);
+            }
+            </script>
+
+
+    <div class="menus index_food">
+        <div id="index_food" style="display:none"></div>
+        <h2>Your personalized menu selections this month</h2>
+
+        {% for product in my_menus %}
+         <div class="user_box">
+            <ul class="additional">
+                <li class="box">
+                {% if product.inventory == 'OS' %}
+                    <div class="order-arrow waitlist-item"><div class="order-stiches">Wait List</div></div>           
+                {% else %}
+                    <a href="/product/{{ product.slug }}/">
+                        <div class="order-arrow {% if not product.is_gift %} order-itemss {% else %}gift-item{% endif %}">
+                            <div class="order-stiches">Order</div>
+                        </div>
+                    </a>
+                {% endif %}
+                <div class="menu-slug">{{ product.slug }}</div>
+                <div class="menu-name">{{ product.name }}</div>
+                
+                    <a href="/product/{{ product.slug }}/">
+                    <div class="image">
+                        <div class="food-image">
+                            <img src="{{ product.entree_image }}" />
+                          {% if product.inventory == 'OS' %} <span class="os"><span class="flag_corner"></span><p class="button_text">WAIT<br /><span class="button_bigger_text">LIST</span></p></span> {% endif %}
+                          {% if product.inventory == 'LS' %} <span class="ls"><span class="flag_corner"></span><p class="button_text"><span class="button_smaller_text">RUNNING</span><br /><span class="button_bigger_text">LOW</span></p></span> {% endif %}
+                            
+                        </div>
+
+                        <div class="popover">
+                        <p>
+                            {{product.user_home_overlay|safe}}
+                        </p>
+                        </div>
+                    </div>
+                    <h3>{{ product.name }}</h3></a>
+                <p class="chef-name">{{product.chef_display}}</p>
+                </li>
+            </ul>
+        </div>
+                
+        {% endfor %}
+
+
+        <div class="divider"></div>
+
+        <h2>Additional recommendations from our chefs</h2>
+
+            <div id="user_menu">
+            {% for product in products %}
+            {% if product.active  %}
+            <div class="user_box">
+              <ul class="additional">
+                <li class="box">
+                {% if product.inventory == 'OS' %}
+                    <div class="order-arrow waitlist-item"><div class="order-stiches">Wait List</div></div>
+                {% else %}
+                    <a href="/product/{{ product.slug }}/">
+                        <div class="order-arrow {% if not product.is_gift %} order-itemss {% else %}gift-item{% endif %}">
+                            <div class="order-stiches">Order</div>
+                        </div>
+                    </a>
+                {% endif %}
+                <div class="menu-slug">{{ product.slug }}</div>
+                <div class="menu-name">{{ product.name }}</div>
+                    <a href="/product/{{ product.slug }}/">
+                    <div class="image">
+                        <div class="food-image">
+                            <img src="{{ product.entree_image }}" />
+                          {% if product.inventory == 'OS' %} <span class="os"><span class="flag_corner"></span><p class="button_text">WAIT<br /><span class="button_bigger_text">LIST</span></p></span> {% endif %}
+                          {% if product.inventory == 'LS' %} <span class="ls"><span class="flag_corner"></span><p class="button_text"><span class="button_smaller_text">RUNNING</span><br /><span class="button_bigger_text">LOW</span></p></span> {% endif %}
+                        </div>
+
+                        <div class="popover">
+                        <p>
+                            {{product.user_home_overlay|safe}}
+                        </p>
+                        </div>
+                    </div>
+                    <h3>{{ product.name }}</h3></a>
+                <p class="chef-name">{{product.chef_display}}</p>
+                </li>
+              </ul>
+            </div>
+            {% endif %}
+            {% endfor %}
+
+        </div>
+            
+
+        {% include "help.html" %}
+
+    </div>
+</div>
+<div id="waitlist-overlay">
+    <h2>Menu Added to Wait List</h2>
+
+    <p><strong>Thanks for letting us know you’re interested in this menu.</strong></p>
+    <p>
+        It sure has been popular, so our chefs will be preparing another
+        batch soon. We'll email you as soon as it’s available again. And
+        remember, Pop-Up Pantry is “no reservations” so be sure to order
+        this menu quickly once it’s back!
+    </p>
+
+    <p class="continue">
+        <a href="/" class="action">Back to Menus</a>
+    </p>
+</div>
+
+{% endblock content %}
+{% block extra_js %}
+    {% if signup_text %}
+    <script type="text/javascript" charset="utf-8">
+            {% if user_id %}
+                $('.sign-up h3').after('<p>{{signup_text}}</p><p><a href="/quiz/?id={{user_id}}">Take the food quiz!</a></p>');
+                if (typeof _kmq != 'undefined') {
+                    _kmq.push(['record', 'signed up', {'plan level':'Beta Interest'}]);
+                var _qevents = _qevents || [];
+                _qevents.push(
+                    {qacct:"p-CtGRuC-swqzEZ",labels:"_fp.event.Beta Interest"}
+                );
+                }
+                {% else %}
+                    $('.sign-up h3').after('<p>{{signup_text}}</p>');
+                    if (typeof _kmq != 'undefined') {
+                        _kmq.push(['record', 'signed up', {'plan level':'Beta Invite'}]);
+                        var _qevents = _qevents || [];
+                        _qevents.push(
+                            {qacct:"p-CtGRuC-swqzEZ",labels:"_fp.event.Beta Invite"}
+                        );
+                    }
+
+                {% endif %}
+                        var mask = $("#mask"), overlay = $("#overlay"), windowHeight = $(document).height(), windowWidth = $(window).width();
+                        $(mask).css({
+                            "width" : windowWidth,
+                            "height" : windowHeight
+                        });
+                        $(mask).fadeTo('slow', 0.6);
+            
+                        // set overlay attributes
+                        var winH = $(window).height(),
+                            winW = $(window).width(),
+                            overlayWidth = 950;
+            
+                        $(overlay).css({
+                            "width" : overlayWidth,
+                            "top" : 150,
+                            "left" : winW / 2 - overlayWidth / 2
+                        });
+            
+            // Format the modal 
+                $('#overlay .sign-up h3, #overlay .user-link').hide();
+                $('#overlay h1').html('Welcome');
+
+                $('.form-wrapper .or, .form-wrapper .fb').hide();
+                $('.form-wrapper').css("backgroundImage", "none");
+                $('#overlay .sign-up').css("width", "100%");
+                $(overlay).fadeIn();
+    </script>
+    {% endif %}
+{% endblock extra_js %}

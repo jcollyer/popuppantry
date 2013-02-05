@@ -1,0 +1,64 @@
+{% extends "survey/survey_detail.html" %}
+
+{% load i18n %}
+
+{% block body_class %}{{ block.super }} theme-yeo{% endblock %}
+
+{% block content %}
+<section class="order-survey overlay-content">
+  {{ block.super }}
+</section>
+{% endblock content %}
+
+
+{% block index-card-header %}
+    <div class="overlay-only overlay-top-exit">
+      <a class="overlay-action-close" href="#">
+       {% trans "close" %}
+      </a>
+    </div>
+    <div class="index-card-header-item align-right">
+      <label>{% trans "Order" %}</label>
+      <div class="value">#{{ active_order.order_number }}</div>
+    </div><!-- .index-card-header-item -->
+    <div class="index-card-header-item align-right">
+      <label>{% trans "Placed" %}</label>
+      <div class="value">
+        <time datetime="{{ active_order.time_stamp }}" pubdate>
+          {{ active_order.time_stamp|date:"F jS, Y" }}
+        </time>
+      </div>
+    </div><!-- .index-card-header-item -->
+    <div class="index-card-header-item order-review-heading">
+      <h2>{% trans "REVIEW ALL MENUS IN THIS ORDER" %}</h2>
+    </div><!-- .index-card-header-item -->
+    <div class="index-card-header-item wizard-progress">
+      {% blocktrans %}
+      Step
+      <span class="wizard-progress-current">#</span>
+      <span class="wizard-progress-keyword-to">of </span>
+      <span class="wizard-progress-max">#</span>
+      {% endblocktrans %}
+    </div><!-- .index-card-header-item -->
+{% endblock %}
+
+{% block submit %}
+<div class="wizard-back">
+  <a href="#" class="overlay-exit-link">
+    {% trans "Go back"%}
+  </a>
+</div>
+<div class="wizard-next">
+  <button class="default button-continue orange_button" type="submit">
+    <div class="large_button_arrow">
+    {% trans 'Continue' %}
+    </div>
+  </button>
+</div><!-- .wizard-next.hidden -->
+
+<div class="submit-row">
+  <button class="default button-submit orange_button" type="submit" name="__vote">
+    {% trans 'Submit your review' %}
+  </button>
+</div>
+{% endblock %}

@@ -1,0 +1,691 @@
+
+{% extends "base.html" %}
+
+{% block title %}
+    Gifts | Pop-Up Pantry
+{% endblock title %}
+
+
+
+{% block extra_js %}
+
+<script type="text/javascript">
+
+if (typeof _kmq != 'undefined') {
+     _kmq.push(['record', 'viewed gift page']);
+}
+
+	new Kalendae.Input(document.getElementById('delivery_date'), {
+		months:3,
+		format: 'MM/DD/YYYY',
+		direction:'future'
+		//selected:Kalendae.moment().subtract({M:1})
+	})
+
+
+  $(document).ready(function(){
+      //select MONTH dropdown
+        $('#selectMonths').each(function(){
+          if( $('option:selected', this).val() != ''  ) title = $('option:selected',this).text();
+          $(this)
+                .css({'z-index':21,'opacity':0,'-khtml-appearance':'none'})
+                .after('<span class="selectCoverGift">' + title + '</span>')
+                 .change(function(){
+                    valText = $('option:selected',this).text();
+                    val = $('option:selected',this).val();
+                    $(this).next().text(valText);
+                    $('#selectMonthInput').val(val);
+                    })
+        });
+        var months = {{month_list}};
+        var options = '';
+        for (var i = 0; i < months.length; i++) {
+            options += '<option value="' + months[i] + '">' + months[i] + ' MONTHS</option>';
+        }
+        $('#selectMonths').html(options);
+        //select DOLLAR dropdown
+        $('#selectDollar').each(function(){
+          if( $('option:selected', this).val() != ''  ) title = $('option:selected',this).text();
+
+          $(this)
+                .css({'z-index':21,'opacity':0,'-khtml-appearance':'none'})
+                .after('<span class="selectCoverDollar">' + title + '</span>')
+                 .change(function(){
+                    valText = $('option:selected',this).text();
+                    val = $('option:selected',this).val();
+                    $(this).next().text(valText);
+                    $('#selectDollarInput').val(val);
+                    })
+        });
+
+        var dollar = {{value_list}};
+        var optionsDollar = '';
+        for (var i = 0; i < dollar.length; i++) {
+            optionsDollar += '<option value="' + dollar[i] + '">$' + dollar[i] + ' .00</option>';
+        }
+        $('#selectDollar').html(optionsDollar);
+        //remember selections for non-register users
+    if ($.cookie("gift_subscription")){
+      $('#gift_details').css("display", "block");
+      $('.chooseGiftSubscrip').css("display","block");
+      if($.cookie("gift_dinners")){
+          var num_meals_number = $.cookie("gift_dinners");
+          $("input.gift_dollar_select[value='"+num_meals_number+"']").attr('checked', true);
+          $("label.buttonLable[value='"+num_meals_number+"']").addClass('selected');
+          $.cookie("gift_dinners", null);
+        }
+      if($.cookie("gift_months")){
+          var num_months_number = $.cookie("gift_months");
+          if($.cookie("month_dropdown")){
+            $("#selectMonthInput").attr('checked', true).val(num_months_number);
+            $('.selectCoverGift').addClass('selected').contents().remove();
+            $('.selectCoverGift').append(""+num_months_number+" MONTHS");
+            $.cookie("gift_dropdown", null);
+          }
+          $("input.gift_months_select[value='"+num_months_number+"']").attr('checked', true);
+          $("label.monthLable[value='"+num_months_number+"']").addClass('selected');
+          $.cookie("gift_months", null);
+        }
+      $.cookie("gift_subscription", null);
+    }
+    if ($.cookie("gift_dollar_amt")){
+      $('#gift_details').css("display", "block");
+      $('.chooseDollarAmt').css("display","block");
+      if($.cookie("gift_value")){
+          var num_value_number = $.cookie("gift_value");
+          if($.cookie("dollar_dropdown")){
+            $("#selectDollarInput").attr('checked', true).val(num_value_number);
+            $('.selectCoverDollar').addClass('selected').contents().remove();
+            $('.selectCoverDollar').append("$"+num_value_number+" .00");
+            $.cookie("dollar_dropdown", null);
+          }
+          $("input.gift_amt_select[value='"+num_value_number+"']").attr('checked', true);
+          $("label.dollarLable[value='"+num_value_number+"']").addClass('selected');
+          $.cookie("gift_value", null);
+        }
+       $.cookie("gift_dollar_amt", null);
+    }
+      var inputVal = $('.gift_dollar_select:checked').val() || 0;
+      var monthVal = $('.gift_months_select:checked').val() || 0;
+      var perItemCost = $.cookie("per_item_cost") || 40;
+      var dinnerTotal = perItemCost * inputVal;
+      var total = dinnerTotal * monthVal;
+      $('.giftCalc').contents().remove();
+      $('.giftCalc').append("$"+total+".00");
+
+  });
+
+   //script gift page
+
+              //click continue shopping from gift page
+              $('button[name=continue_shopping]').click(function(){
+                $('.user-shopping-cart').fadeOut();
+                return false;
+              });
+              //click see more
+              $('.see_more').live("click", function(){
+                $('.seeMore').fadeIn();
+                $('.see_more').css("display","none");
+                $('.hide_details').fadeIn();
+              });
+              //click hide details
+              $('.hide_details').live("click", function(){
+                $('.seeMore').fadeOut();
+                $('.hide_details').css("display","none");
+                $('.see_more').fadeIn();
+              });
+              //click the gift card button
+              $('.gift_card_option').live("click", function(){
+              	$(this).addClass('gift_card_option_selected');
+                $('.chooseGiftSubscrip').css("display", "none");
+                $('#gift_details').css("display","block");
+                $('.chooseDollarAmt').fadeIn();
+                $('.gift_card_option').css("opacity", "1.0");
+                $('.subscription_option').css("opacity", "0.3").removeClass('subscription_option_selected');
+                $('#zero_months').attr('checked', true);
+                $('#zero_meals').attr('checked', true);
+              });
+              //click the subscription button
+              $('.subscription_option').live("click", function(){
+              	$(this).addClass('subscription_option_selected');
+                $('.chooseDollarAmt').css("display", "none");
+                $('#gift_details').css("display","block");
+                $('.chooseGiftSubscrip').fadeIn();
+                $('.subscription_option').css("opacity", "1.0");
+                $('.gift_card_option').css("opacity", "0.3").removeClass('gift_card_option_selected');
+                $('#zero_dollar_amt').attr('checked', true);
+              });
+             //click a DOLLAR button
+             $('.dollarLable').live("click", function(){
+                $('.dollarList label').removeClass('selected');
+                $('.dolloarList input').attr('checked', false);
+                $(this).addClass('selected');
+                var theInput = $(this).prev();
+                theInput.attr('checked', true);
+            });
+           //click a DOLLAR dropdown
+           $('#selectDollar').change(function(){
+              $('.dollarList label').removeClass('selected');
+              $('.dolloarList input').attr('checked', false);
+              $('.selectCoverDollar').addClass('selected');
+              var theInput = $(this).prev();
+              theInput.attr('checked', true);
+              var dollarVal = theInput.val();
+               $.cookie("dollar_dropdown", dollarVal);
+            });
+            //click a DINNERS button
+            $('.buttonLable').live("click", function(){
+              var monthVal = 1;
+              var inputVal = 2;
+              $(this).parent().parent().find("span[id^='dinner_item_cost']").removeClass('selected_item_cost');
+              $('.buttonList label').removeClass('selected');
+              $('.buttonList input').attr('checked', false);
+              $(this).addClass('selected');
+              var theInput = $(this).prev();
+              theInput.attr('checked', true);
+              var inputVal = theInput.val();
+              var monthInput = $('.monthList input:checked');
+              var monthVal = monthInput.val() || 0;
+              $(this).parent().find("span[id^='dinner_item_cost']").addClass('selected_item_cost');
+              var perItemCost = $(this).parent().find("span[id^='dinner_item_cost']").html() || 40;
+              var dinnerTotal = perItemCost * inputVal;
+              var total = dinnerTotal * monthVal;
+              $('.giftCalc').contents().remove();
+              $('.giftCalc').append("$"+total+".00");
+
+              $.cookie("per_item_cost", perItemCost);
+            });
+
+              //click a MONTH button
+              $('.monthLable').live("click", function(){
+                var monthVal = 1;
+                var inputVal = 2;
+                $('.monthList label').removeClass('selected');
+                $('.selectCoverGift').removeClass('selected');
+                $('.monthList input').attr('checked', false);
+                $(this).addClass('selected');
+                var monthInput = $(this).prev();
+                monthInput.attr('checked', true);
+                var monthVal = monthInput.val();
+                var theInput = $('.buttonList input:checked');
+                var inputVal = theInput.val();
+                var perItemCost = $('.buttonList .selected_item_cost').html() || 40;
+                var dinnerTotal = perItemCost * inputVal;
+                var total = dinnerTotal * monthVal;
+                $('.giftCalc').contents().remove();
+                $('.giftCalc').append("$"+total+".00");
+              });
+
+              //click a MONTH dropdown
+              $('#selectMonths').live("change", function(){
+
+                var monthVal = 4;
+                var inputVal = 2;
+
+
+                $('.monthList label').removeClass('selected');
+                $('.monthList input').attr('checked', false);
+
+                $('.selectCoverGift').addClass('selected');
+                var monthInput = $('#selectMonthInput');
+                monthInput.attr('checked', true);
+                var monthVal = monthInput.val();
+                var theInput = $('.buttonList input:checked');
+                var inputVal = theInput.val();
+                var perItemCost = $('.buttonList .selected_item_cost').html() || 40;
+                var dinnerTotal = perItemCost * inputVal;
+                var total = dinnerTotal * monthVal;
+
+                $.cookie("month_dropdown", monthVal);
+                    // console.log(monthInput);
+                    // console.log(monthVal);
+                    // console.log(inputVal);
+
+                    // console.log(perItemCost);
+                    // console.log(dinnerTotal);
+                    // console.log(total);
+                $('.giftCalc').contents().remove();
+                $('.giftCalc').append("$"+total+".00");
+
+              });
+
+              //register if not yet
+              {% if not user.is_authenticated %}
+              $(document).ready(function(){
+
+
+              	$('#sender_name').click(function(){
+
+              		  if ($('.chooseGiftSubscrip').css('display') == 'block') {$.cookie("gift_subscription","ture")}
+                    if ($('.chooseDollarAmt').css('display') == 'block') {$.cookie("gift_dollar_amt","ture")}
+                    var checkedDinners = $('input[name="num_meals"]:checked').val();
+                    var checkedMonths = $('input[name="num_months"]:checked').val();
+                    var checkedValue = $('input[name="value"]:checked').val();
+                    if(checkedDinners > 0 ){$.cookie("gift_dinners", checkedDinners)}
+                    if(checkedMonths > 0 ){$.cookie("gift_months", checkedMonths)}
+                    if(checkedValue > 0 ){$.cookie("gift_value", checkedValue)}
+
+		            var mask = $("#mask"), overlay = $("#overlay"), windowHeight = $(document).height(), windowWidth = $(window).width();
+		            $(mask).css({
+		                "width" : windowWidth,
+		                "height" : windowHeight
+		            });
+		            $(mask).fadeTo('slow', 0.6);
+
+
+                $("#overlay").modalWindow({
+                  'overlay-width': 520,
+                  'overlay-height': 410,
+                  'overlay-top': 50
+                }).on('overlay-close', function (event) {
+                  if (typeof _kmq != 'undefined') {
+                    _kmq.push(['record', 'Dismiss Modal', {'reason':'User dismissed modal'}]);
+                  }
+                });
+
+		            // display the overlay
+		            $(overlay).fadeIn();
+
+              	});
+              });
+              {% endif %}
+
+              //sample email
+              $('.sampleEmail').live("click", function(){
+                var mask = $("#mask"), overlay = $("#overlay"), windowHeight = $(document).height(), windowWidth = $(window).width();
+                  $(mask).css({
+                  "width" : windowWidth,
+                  "height" : windowHeight
+                 });
+
+                $(mask).fadeTo('slow', 0.6);
+
+                var sampleEmail = $('.sampleEmailOverlay');
+                //var windowScreen = $(window);
+                //sampleEmail.css("top", windowScreen );
+                sampleEmail.fadeIn(function(){
+                   $('.sampleEmailClose').live("click", function(){
+                      $(this).parent().css("display","none");
+                      $('#mask').fadeOut();
+                      return false;
+                   });
+                });
+              });
+
+              //date picker
+              $('.icon-date').click(function(){
+                 $('input#delivery_date').focus();
+              });
+
+              $('.kalendae').click(function(){
+              	$(this).css("display" ,"none");
+              });
+
+          //SUBMIT FORM
+          $('#gifting-form').submit(function(){
+
+             	$('.error_li').remove();
+             	$('.error_buttons').remove();
+
+
+             	var isFormValid = true;
+             	var emailReg = /^([a-zA-Z0-9_\.\-\+])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+             	var recipientEmail = $('#recipient_email').val();
+
+             	if($('#sender_name').val().length == 0) {
+             		$('#sender_name').parent().before('<li class="error_li"><div class="error">This field cannot be blank.</div></li>');
+             		isFormValid = false;
+             	}
+
+             	if($('#recipient_name').val().length == 0) {
+             		$('#recipient_name').parent().before('<li class="error_li"><div class="error">This field cannot be blank.</div></li>');
+             		isFormValid = false;
+             	}
+
+             	if(!emailReg.test(recipientEmail)){
+             		$('#recipient_email').parent().before('<li class="error_li"><div class="error">Must be valid Email: "example@example.com"</div></li>');
+             		isFormValid = false;
+             	}
+             	var dateValue = $("#delivery_date").val();
+              var todayDate = new Date();
+              var thisYear = todayDate.getFullYear();
+              var twoYearsFromToday = thisYear + 2;
+              var prettyDate = (todayDate.getMonth()+1) + '/' + todayDate.getDate() + '/' + todayDate.getFullYear();
+              var prettyDateTwoYearsFuture =(todayDate.getMonth()+1) + '/' + todayDate.getDate() + '/' + twoYearsFromToday;
+
+
+              if(Date.parse(dateValue) > Date.parse(prettyDateTwoYearsFuture) ){
+                $('#delivery_date').parent().before('<li class="error_li"><div class="error">Please choose a date 24 months from today.</div></li>');
+                isFormValid = false;
+              }
+
+              if(Date.parse(dateValue) < Date.parse(prettyDate) ){
+                $('#delivery_date').parent().before('<li class="error_li"><div class="error">Please choose a date for today or later.</div></li>');
+                isFormValid = false;
+              }
+
+              if($('#delivery_date').val().length == 0) {
+                  $('#delivery_date').parent().before('<li class="error_li"><div class="error">This field cannot be blank.</div></li>');
+                  isFormValid = false;
+              }
+
+             	if($('.subscription_option_selected').length) {
+             		if (!$(".buttonList input[name='num_meals']:checked").val()){
+             			$('.buttonList').before('<li class="error_buttons"><div class="error">Please select one of the buttons.</div></li>');
+             			isFormValid = false;
+             		}
+             		if (!$(".monthList input[name='num_months']:checked").val()){
+             			$('.monthList').before('<li class="error_buttons"><div class="error">Please select an option below.</div></li>');
+             			isFormValid = false;
+             		}
+             	}
+
+             	if($('.gift_card_option_selected').length) {
+             		if (!$(".dollarList input[name='value']:checked").val()){
+             			$('.dollarList').before('<li class="error_buttons"><div class="error">Please select an option below.</div></li>');
+             			isFormValid = false;
+             		}
+             	}
+
+              if($('.gift_textarea').val().length == 0) {
+                $('.gift_textarea').parent().before('<li class="error_li"><div class="error">This field cannot be blank.</div></li>');
+                isFormValid = false;
+              }
+
+ 				if (!$('.error').length == 0){
+
+ 					//$('.shopping-cart ul').append("<li><div class='shopping-cart-thumb-image'><img src='/static/img/icon-gift-aqua.png' /></div><div class='shopping-cart-description'><div class='desc'><h4><a href='/checkout/'>Gift Card</a></h4></div><div class='remove'><h5>REMOVE</h5></div></div><div class='quantity-box'><input type='text' class='quantity' value='1'></div></div></li>");
+					var errors = $('.gifting').find("div[class^='error']");
+              	 	var firstError = errors.get(0);
+             	 	$('html, body').animate({ scrollTop: $(firstError).offset().top}, 1500);
+             	 	isFormValid = false;
+	         		}
+
+          return isFormValid;
+      });
+
+      //if gift card was purchased
+			if($('.success').length){
+				$("html, body").animate({ scrollTop: 0 }, "slow");
+            	$('.user-shopping-cart').fadeIn()
+            	$('.new-shopping-menu').animate({top: '-40px'}, 1000);
+      }
+
+
+</script>
+
+{% endblock extra_js %}
+
+
+{% block extra_head %}
+	<link rel="stylesheet" href="/static/css/kalendae2.css">
+{% endblock extra_head%}
+
+{% block content %}
+<div class="gifting">
+	<div class="iconGiftAqua"></div>
+	<div class="gift_header">
+		<span class="shortLineHeaderLeft"></span>
+		<h2>GIVE THE GIFT OF GREAT TASTE</h2>
+		<span class="shortLineHeaderRight"></span>
+    </div>
+        <p class="giftTop">Tired of fruit baskets and chocolate? Gift assortments full of food samples no one wants or will use? Give the gift of Pop-Up Pantry instead, a testament to your impeccable taste. Your food loving friends and family deserve exquisite 3-course, restaurant-quality dinners crafted by top chefs. <span class="detailsText hide_details"> Hide Details</span><span class="detailsText see_more">See more...</span></p>
+    <div class="seeMore">
+    	<img class="giftlearnimg" src="/static/img/moreInfoImg.jpg" />
+    	<h3>Be a tastemaker and give Pop-Up Pantry gift card or gift subscription today!</h3>
+    	<p>Whether they’re celebrating a birthday, anniversary or holiday, or you’re helping ease one of life’s transitions—new baby, new home, off to school—a Pop-Up Pantry virtual gift card or gift subscription makes the perfect gift. Whichever option you choose, your recipient will receive an elegant email notification, then choose the dinners and delivery date right for them.</p>
+    	<p><i><span class="detailsText"><a href="/about/" target="_blank">Learn more about us!</a></span></i></p>
+
+    </div>
+    <div class="dividerline"></div>
+	<h2>SELECT A TYPE OF GIFT</h2>
+	<div class="giftOptions">
+		<table class="giftOptionsTable">
+			<tr>
+				<th class="gift_card_option"><img class="giftCardOptionImg" src="/static/img/icon-gift-card.png" /></th>
+				<th class="subscription_option"><img class="giftCardOptionImg" src="/static/img/icon-subscrption.png" /></th>
+			</tr>
+			<tr>
+				<td><p>Virtual gift card loaded with the dollar amount you choose. We’ll send a code to your recipient on a date you select in an elegant, personalized email. Your recipient can spend it all at once or across different purchases by entering the code at checkout.</p></td>
+				<td><p>Choose how many months and how many dinners per month you’d like to give. We’ll send a code to your recipient on a date you select in an elegant, personalized email. Your recipient makes their selections accordingly by entering the code at checkout.</p></td>
+			</tr>
+		</table>
+	</div>
+
+	<div id="gift_details">
+		<div class="thinline4"></div>
+		<form id="gifting-form" method="post" action="/gifts/">
+		{% csrf_token %}
+		{{form.errors}}
+		{% if success %}
+			<div class="success"></div>
+		{% endif %}
+
+
+		<div class="gift_options clearfix">
+			<div class="chooseDollarAmt">
+				<h3>CHOOSE A DOLLAR AMOUNT</h3>
+				<ul class="dollarList clearfix">
+					<li>
+						<input type="radio" name="value" class="gift_amt_select" id="zero_dollar_amt" value="0" checked="checked" >
+						<input type="radio" name="value" class="gift_amt_select" id="first_dollar_button" value="25">
+						<label for="gift_dollar_amt" class="dollarLable twentyfive" value="25"><span>$25.00</span></label>
+					</li>
+					<li>
+						<input type="radio" name="value" class="gift_amt_select" value="50">
+						<label for="gift_dollar_amt" class="dollarLable fifty" value="50"><span>$50.00</span></label>
+					</li>
+					<li>
+						<input type="radio" name="value" class="gift_amt_select" value="100">
+						<label for="gift_dollar_amt" class="dollarLable onehundred" value="100"><span>$100.00</span></label>
+					</li>
+					<li>
+						<input type="radio" name="value" class="gift_amt_select" value="150">
+						<label for="gift_dollar_amt" class="dollarLable onehundredfifty" value="150"><span>$150.00</span></label>
+					</li>
+					<li>
+					  <input type="radio" name="value" class="gift_amt_select" id="selectDollarInput" value="">
+            <select id="selectDollar"><option value="please_select">Please Select</option></select>
+          </li>
+				</ul>
+			</div>
+			<div class="chooseGiftSubscrip">
+				<h3>CHOOSE A GIFT SUBSCRIPTION</h3>
+				<p>How Many Dinners per Month?</p>
+				<ul class="buttonList">
+					<li>
+						<input type="radio" name="num_meals" class="gift_dollar_select" id="zero_meals"  value="0" checked="checked">
+						<input type="radio" name="num_meals" class="gift_dollar_select" id="first_meal_button" value="2">
+						<label for="gift_dollar_amt" class="buttonLable twodinners" value="2"><span>2 DINNERS</span></label>
+            <span id="dinner_item_cost" style="display:none">{{two_dinners.price}}</span>
+					</li>
+					<li>
+						<input type="radio" name="num_meals" class="gift_dollar_select" value="4">
+						<label for="gift_dollar_amt" class="buttonLable fourdinners" value="4" ><span>4 DINNERS</span></label>
+            <span id="dinner_item_cost" style="display:none">{{four_dinners.price}}</span>
+					</li>
+					<li>
+						<input type="radio" name="num_meals" class="gift_dollar_select" value="8">
+						<label for="gift_dollar_amt" class="buttonLable eightdinners" value="8" ><span>8 DINNERS</span></label>
+            <span id="dinner_item_cost" style="display:none">{{eight_dinners.price}}</span>
+					</li>
+					<li>
+						<input type="radio" name="num_meals" class="gift_dollar_select" value="12">
+						<label for="gift_dollar_amt" class="buttonLable twelvedinners" value="12" ><span>12 DINNERS</span></label>
+            <span id="dinner_item_cost" style="display:none">{{twelve_dinners.price}}</span>
+					</li>
+					<li>
+						<input type="radio" name="num_meals" class="gift_dollar_select" value="20">
+						<label for="gift_dollar_amt" class="buttonLable twentydinners" value="20" ><span>20 DINNERS</span></label>
+            <span id="dinner_item_cost" style="display:none">{{twenty_dinners.price}}</span>
+					</li>
+				</ul>
+				<br />
+				<p>For How Many Months?</p>
+				<ul class="monthList">
+					<li>
+						<input type="radio" name="num_months" class="gift_months_select" id="zero_months" value="0" checked="checked">
+						<input type="radio" name="num_months" class="gift_months_select" id="first_month_button" value="1">
+						<label for="gift_dollar_amt" class="monthLable onemonth" value="1"><span>1 MONTH</span></label>
+					</li>
+					<li>
+						<input type="radio" name="num_months" class="gift_months_select" value="2">
+						<label for="gift_dollar_amt" class="monthLable twomonth" value="2"><span>2 MONTHS</span></label>
+					</li>
+					<li>
+						<input type="radio" name="num_months" class="gift_months_select" value="3">
+						<label for="gift_dollar_amt" class="monthLable threemonth" value="3" ><span>3 MONTHS</span></label>
+					</li>
+					<li>
+						<input type="radio" name="num_months" class="gift_months_select" value="6">
+						<label for="gift_dollar_amt" class="monthLable sixmonth" value="6" ><span>6 MONTHS</span></label>
+					</li>
+					<li>
+            <input type="radio" name="num_months" class="gift_months_select" id="selectMonthInput" value="">
+            <select id="selectMonths"><option value="please_select">Please Select</option></select>
+        	</li>
+				</ul>
+				<div class="giftSubscripTotal">
+					<h2>Gift Subscription Total: <span class="giftCalc"> $0.00</span></h2>
+				</div>
+			</div>
+		</div>
+
+
+		<div class="giftForm">
+			<div class="thinline4"></div>
+      <br />
+			<ul class="contact contact-form clearfix gift-ul">
+				<li><hgroup><h3>FROM</h3></hgroup></li>
+				<li class="sender_name">
+					<label for="sender_name">Sender's Name*</label>
+					<input id="sender_name" type="text" name="sender_name" value="{{contact.full_name}}">
+				</li>
+			</ul>
+			<br />
+			<div class="thinline4"></div>
+			<div class="sampleEmail">
+				Click here to see a sample of the email
+
+					<div class="sampleEmailOverlay">
+            <div class="sampleEmailClose">Close</div>
+          </div>
+
+
+			</div>
+			<ul class="contact contact-form clearfix gift-ul">
+				<li><hgroup><h3>TO</h3></hgroup></li>
+				<li class="recipient_name">
+					<label for="recipient_name">Recipient's Name*</label>
+					<input id="recipient_name" type="text" name="recipient_name" value="">
+				</li>
+				<li class="recipient_email">
+					<label for="recipient_email">Recipient's Email*</label>
+					<input id="recipient_email" type="text" name="recipient_email" value="">
+				</li>
+				<li class="delivery_date">
+					<label for="date_to_send">Delivery Date*</label>
+					<input id="delivery_date" type="text" name="date_to_send" placeholder="mo/day/year" >
+					<div class="icon-date"></div>
+
+				</li>
+				<li>
+					<div class="gift_calander"></div>
+				</li>
+			</ul>
+
+			<div class="thinline3"></div>
+			<ul class="contact contact-form clearfix">
+        <br />
+				<li><hgroup><h3>ENTER A MESSAGE</h3></hgroup></li>
+				<li><textarea class="gift_textarea" name="message"></textarea></li>
+			</ul>
+
+			<div class="gifting_submit">
+				<input type="hidden" name="cart" value="{{cart.id}}" />
+				<input type="submit" class="orange_button" id="gift_submit" value="ADD TO CART" />
+			</div>
+		</form>
+		</div>
+	</div>
+	<div class="dividerline"></div>
+	<div class="giftFAQ">
+		<h3>GIFT CARD FAQ</h3>
+		<h5>What is a POP–UP PANTRY Gift Card?</h5>
+		<p>This is a flat amount of money that you load onto a virtual gift card and send to your recipient. She’ll get an elegant email notification with your personalized message and a gift card code on the date you select. When she checks out she’ll be able to apply the gift card code to pay for her purchase either in full or part. Gift cards do not require a Premiere Dining subscription from either you or your recipient (only a free email sign-up registration.)</p>
+		<h5>What is a Pop-Up Pantry subscription gift?</h5>
+		<p>This is a set number of dinners for a set number of months that you purchase for your recipient. A gift subscription code and your personalized message arrive in an elegant email on the date you select. She’ll be able to select her dinners every month, but since she has a gift subscription code, may do so without having to enter any credit card info or join Premiere Dining. In fact, neither you nor your recipient need to be Premiere Dining members!</p>
+		<h5>How can I redeem my Pop-Up Pantry Gift Card?</h5>
+		<p>On the Checkout page in the Payment section, there is a field to enter a gift card number. Simply enter the code and apply the gift card or gift subscription to your order. </p>
+		<h5>Can I add more money to my Pop-Up Pantry gift card?</h5>
+		<p>No. You would need to purchase a new gift card or gift subscription for your recipient.</p>
+		<h5>MAY I USE CREDITS TO PURCHASE GIFTS?</h5>
+		<p>You may apply account credits toward the purchase gift cards or gift subscriptions, however promotional codes may not be applied toward gifts.</p>
+		<h5>HOW CAN I CHECK MY GIFT CARD BALANCE?</h5>
+		<p>Your available gift card total and remaining balance (after you select the amount you want to spend) all appear in the Gift Card field of the Payment section on the Checkout page.</p>
+
+	<!-- 	<h3>TERMS OF SERVIECE</h3>
+		<p>Lorem ipsum dolor sit amet, consectetur adipiscig elit, sed do eiusmod tempor incididuntut labore et dolore magna aliqu. Ut enim ad minim venim, quis nostrud exeriction ullamic labor nisis ut alquip w ae commiso eosdfa. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolre eu fugit nulia paritu.</p>
+		<p>Sed do eiusmod tempor incididuntut labore et dolore magna aliqu. Ut enim ad minim venim, quis nostrud exeriction ullamic labor nisis ut alquip w ae commiso eosdfa. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolre eu fugit nulia paritu.</p>
+		<p>Ullamic labor nisis ut alquip w ae commiso eosdfa. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolre eu fugit nulia paritu.</p>
+		<p>Sed do eiusmod tempor incididuntut labore et dolore magna aliqu. Ut enim ad minim venim, quis nostrud exeriction ullamic labor nisis ut alquip w ae commiso eosdfa. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolre eu fugit nulia paritu.</p> -->
+	</div>
+
+
+
+
+
+<!-- 	<div id="gift_img">
+			<img src="/static/img/invite1.png" width="300" height="238" alt="Give friends the gift of dinner" />
+			<div class="gift_text">
+				<p>Want to let your friends in on the newest way to get celebrity chef meals into their kitchen? Use the form on the right to buy a Pop-Up Pantry gift for the people in your life. You can gift by dollar amount, number of meals or months of membership.</p>
+				<p>Want to let your friends in on the newest way to get celebrity chef meals into their kitchen? Use the form on the right to buy a Pop-Up Pantry gift for the people in your life. You can gift by dollar amount, number of meals or months of membership.</p>
+
+			</div>
+     </div>
+
+
+
+    {% if success %}
+        Thanks for your gift!
+    {% else %}
+    {% if gift_form.non_field_errors %}
+        {{gift_form.non_field_errors }}
+    {% endif %}
+    <h4>Introduce your friends to Pop-Up Pantry</h4>
+
+    <div class="gift_form">
+
+		<form method="post" action=".">
+			{% csrf_token %}
+
+
+
+			<ul>
+			{% for field in gift_form %}
+			{% if field.errors %}
+
+			<span class="error">{{field.errors}}</span>
+			{% endif %}
+
+			<p class="field-name"><span class="field-label">{{field.label}}</span>
+			{{field}}</p>
+
+			{% endfor %}
+
+				<input type="hidden" name="cart" value="{{cart.id}}" />
+				<input type="submit" class="button long" value="Order Now" />
+		</form>
+
+	</div>
+
+    {% endif %}
+
+     -->
+</div>
+    <script src="/static/js/libs/kalendae.min.js" type="text/javascript" charset="utf-8"></script>
+
+
+<div class="clear">&nbsp;</div>
+
+{% endblock content %}

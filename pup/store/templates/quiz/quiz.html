@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+	<h2>Tell us your tastes so our chefs can craft menus just for you</h2>
+
+	<div id="quiz">
+
+		<form action="/quiz/submit/" method="post">
+			{% csrf_token %}
+
+			{% if user_id %} <input type="hidden" name="user_id" value="{{user_id}}" />{% endif %}
+			<div class="box">
+
+				<ul class="questions">
+				{% for q in questions %}
+
+					<li>
+
+						<div class="status">{{ forloop.counter }} of 10 complete</div>
+
+						<h3>{{ forloop.counter }}) {{q.question}}</h3>
+
+						<ul class="q-{{q.id}}{% if forloop.last %} last{% endif %}">
+							{% for a in q.random_choices %}
+							<li>
+								<input type="radio" id="a-{{ a.id }}" name="question {{ q.id }}" value="{{ a.id }}" />
+								<label for="a-{{ a.id }}">
+								<img src="{{a.img_url}}" title="{{a.name|safe|striptags}}" />
+								{{ a.description }}
+								</label>
+							</li>
+							{% endfor %}
+						</ul>
+
+					{% if forloop.last %}
+						<input type="submit" class="submit" value="Show Me My Results" />
+					{% endif %}
+
+ 					</li>
+
+				{% endfor %}
+				</ul>
+
+			</div>
+
+		</form>
+
+	</div>
+
+{% endblock content %}
+
+{% block extra_js %}
+
+<script>
+ 
+jQuery(function ($) {
+
+  var quiz = $('.questions');
+
+  if (quiz.length) {
+    quiz.bxSlider({
+      infiniteLoop: false,
+      hideControlOnEnd: true,
+      controls: false
+    });
+
+    quiz.find("ul li").live('click',function () {
+      $(this).find("input").attr('checked', true);
+
+      if($(this).parent().hasClass("last")) {
+        $("#quiz form").submit();
+      } else {
+        quiz.goToNextSlide();                     
+      }
+    });
+  }
+});
+</script>
+    <script src="{{ media_url}}js/jquery.bxSlider.min.js"></script>
+  {% endblock extra_js %}
+
+

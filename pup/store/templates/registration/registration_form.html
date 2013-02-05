@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+  <div class="main-registration">
+    <div id="register-overlay" class="box">
+
+      <img src="/static/img/logo-clear.png" />
+
+      <h3>Register for FREE to discover your Taste Profile!</h3>
+
+      <form method="post" action=".">
+          {% csrf_token %}
+          
+          {% if form.non_field_errors %}
+            <div class="error">{{ form.non_field_errors }}</div>
+          {% endif %}
+
+          <ul>
+              {% for field in form %}
+              <li>
+                {% if field.html_name != "username" and field.html_name != "quiz" and field.html_name != "group" %}
+                {# {{ field.label_tag }} #}
+                {# {{ field }} #}
+                {{field.errors}}
+                <input type="{% if field.html_name == "password1" or field.html_name == "password2" %}password{% else %}text{% endif %}" name="{{ field.html_name }}" placeholder="{{ field.label }}"{% if field.errors%} class="error"{% endif %} id="id_{{field.html_name}}" />
+
+
+                {% endif %}
+              </li>
+              {% endfor %}
+          </ul>
+
+
+        {% if invitation_key %}
+          <input type="hidden" name="invitation_key" value="{{invitation_key}}" />
+        {% endif %}
+        <input name="ajax" value="True" type="hidden" />
+          <input type="submit" class="button long" value="Submit" />
+
+      </form>
+
+      <span>Already a member? <a href="/accounts/login/">Sign In</a></span>
+
+    </div>
+  </div>
+
+	<div class="register reg-modal menus">
+
+		<h2>Your personalized menu selections this month</h2>
+
+		<ul class="personalize">
+		{% for product in all_products|slice:"3" %}
+			<li class="box">
+				<div class="order-arrow">Order</div>
+				<div class="menu-slug">{{ product.slug }}</div>
+				<div class="menu-name">{{ product.translated_name }}</div>
+				<a href="product/{{ product.slug }}">
+				{% for food in product.food.all %}
+					{% if food.food_type == "MM" %}
+					<div class="food-image">
+						<img src="{{ food.images.all.0.img_url }}" />
+					  {% if product.inventory == 'OS' %} <span class="os"></span> {% endif %}
+					  {% if product.inventory == 'LS' %} <span class="ls"></span> {% endif %}						
+						
+					</div>
+					{% endif %}
+				{% endfor %}
+
+				{% for food in product.food.all %}
+				{% if food.food_type == "AP" %}
+					<div class="food">
+						First:
+						<strong>{{ food.name }} »</strong>
+						<div class="desc">{{ food.description }}</div>
+					</div>
+				{% endif %}
+				{% endfor %}
+				{% for food in product.food.all %}
+				{% if food.food_type == "MM" %}
+					<div class="food">
+						Main:
+						<strong>{{ food.name }} »</strong>
+						<div class="desc">{{ food.description }}</div>
+					</div>
+				{% endif %}
+				{% endfor %}
+				{% for food in product.food.all %}
+				{% if food.food_type == "DE" %}
+					<div class="food">
+						Dessert:
+						<strong>{{ food.name }} »</strong>
+						<div class="desc">{{ food.description }}</div>
+					</div>
+				{% endif %}
+				{% endfor %}
+				</a>
+			</li>
+		{% endfor %}
+		</ul>
+
+		<div class="divider"></div>
+
+		<h2>Additional recommendations from our chefs</h2>
+
+			<ul class="additional">
+			{% for product in all_products %}
+			{% if product.active %}
+				<li class="box">
+					<a href="product/{{ product.slug }}">
+					<div class="image">
+					{% for food in product.food.all %}
+						{% if food.food_type == "MM" %}
+					<div class="food-image">
+						<img src="{{ food.images.all.0.img_url }}" />
+					  {% if product.inventory == 'OS' %} <span class="os"></span> {% endif %}
+					  {% if product.inventory == 'LS' %} <span class="ls"></span> {% endif %}
+					</div>
+						{% endif %}
+					{% endfor %}
+
+						<div class="popover">
+
+							{% for food in product.food.all %}
+							{% if food.food_type == "AP" %} {# App #}
+									First: <strong>{{ food.name }}</strong><br/>
+							{% endif %}
+							{% endfor %}
+							{% for food in product.food.all %}
+							{% if food.food_type == "MM" %} {# Main #}
+									Main: <strong>{{ food.name }}</strong><br/>
+							{% endif %}
+							{% endfor %}
+							{% for food in product.food.all %}
+							{% if food.food_type == "DE" %} {# Dessert #}
+									Dessert: <strong>{{ food.name }}</strong>
+							{% endif %}
+							{% endfor %}
+
+						</div>
+					</div>
+					{{ product.name }}</a>
+				</li>
+        {% if forloop.counter|divisibleby:3 %} <li class="clear"></li> {% endif %}
+			{% endif %}
+			{% endfor %}
+			</ul>
+
+
+	</div>
+
+{% endblock %}

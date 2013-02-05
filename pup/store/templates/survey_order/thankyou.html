@@ -1,0 +1,129 @@
+{% extends "survey/thankyou.html" %}
+{% load i18n %}
+{% load local_ab_tests %}
+
+{% block body_class %}{{ block.super }} theme-yeo{% endblock %}
+
+
+{% block content %}
+<section class="order-survey order-survey-thankyou overlay-content">
+  <div class="paper-receipt clearfix">
+    <div class="index-card">
+      <div class="overlay-only overlay-top-exit">
+        <a class="overlay-action-close" href="#">
+         {% trans "close" %}
+        </a>
+      </div>
+      <div class="index-card-main clearfix">
+
+        <section class="thankyou-message">
+          <h1>{{ title|default:_("Thanks!") }}</h1>
+        </section>
+
+        {% if surveys %}
+        <form method="post" class="order-survey-shipping focus-input" action="{{ request.path }}">
+          {% csrf_token %}
+          <div class="hidden">
+            {{selected_product_form}}
+          </div>
+
+          {% for survey in surveys %}
+          {% include "survey/_survey.html" %}
+          {% endfor %}
+
+          <div class="submit-block">
+            <div class="overlay-only overlay-bottom-exit align-left">
+              <a class="overlay-action-close overlay-exit-link" href="#">
+                {% trans "Not right now, exit &amp; return" %}
+              </a>
+            </div>
+
+            <div class="submit-row">
+              <button class="default button-submit orange_button" type="submit" name="__vote">
+                {% trans 'Submit' %}
+              </button>
+            </div><!-- .submit-block -->
+          </div>
+        </form>
+        {% else %}
+
+        {% if unreviewed_products or product_recommendations %}
+
+        <section class="other-menu-reviews">
+          <section class="other-menu-reviews-header clearfix">
+            {% trans "We really appreciate your feedback. Thank you!" %}
+          </section><!-- .other-menu-reviews-header.clearfix -->
+
+          <section class="menu-reviews">
+
+            {% if unreviewed_products %}
+            <section class="menu-reviews-header">
+              {% blocktrans %}
+              Review more of the dishes you ordered:
+              {% endblocktrans %}
+            </section>
+
+            {% with unreviewed_products as products %}
+            {% include "survey_order/_product_review.html" with next_url_as_overlay=request.user.id|use_variant:"1:2" %}
+            {% endwith %}
+            {% else %}
+
+            {% if  product_recommendations %}
+            <section class="menu-reviews-header">
+              {% if selected_product %}
+              {% blocktrans with product_name=selected_product.name %}
+              Customers who bought <strong>{{product_name}}</strong> also bought:
+              {% endblocktrans %}
+              {% else %}
+              {% blocktrans %}
+              Customers also bought one of these:
+              {% endblocktrans %}
+              {% endif %}
+            </section>
+
+            {% with product_recommendations as products %}
+            {% include "survey_order/_product_review.html" with next_url_as_overlay=False %}
+            {% endwith %}
+
+            {% endif %}{# product_recommendations #}
+
+            {% endif %}{# else product_recommendations #}
+
+            <div class="submit-row">
+              <div class="overlay-only overlay-bottom-exit">
+                <a class="overlay-action-close overlay-exit-link" href="#">
+                  {% trans "No thanks! Please close the window." %}
+                </a><!-- .overlay-action-close.overlay-exit-link -->
+              </div><!-- .overlay-only.overlay-bottom-exit -->
+            </div><!-- .submit-row -->
+          </section><!-- .menu-reviews -->
+        </section><!-- .other-menu-reviews -->
+        {% endif %}{# unreviewed_products #}
+
+        {% if selected_product %}
+        <div class="invite_share">
+          <h3>Share on Facebook or Twitter</h3>
+          <div class="share_buttons">
+            <ul >
+              <li>
+                <a class="fbShare" href="https://www.facebook.com/dialog/feed?app_id=387251307970706&link={{ selected_product.bitly_url }}&picture={{selected_product.entree_image}}&name=Pop-Up%20Pantry&caption=&description=I%20just%20reviewed%20{{selected_product.name|escape}}%20on%20Pop-Up%20Pantry.%20Check%20it%20out!&redirect_uri={{selected_product.bitly_url}}" target="_blank"></a>
+              </li>
+              <li>
+                <a class="twitShare" href="http://twitter.com/share?url={{ selected_product.bitly_url }}&text=I%20just%20reviewed%20{{selected_product.name|escape}}%20on%20Pop-Up%20Pantry.%20Check%20it%20out!&" target="_blank"></a>
+              </li>
+            </ul>
+          </div>
+        </div>
+        {% endif %}{# selected_product #}
+
+
+        {% endif %}{# unreviewed_products or product_recommendation #}
+
+
+
+      </div><!-- .index-card-main -->
+    </div><!-- .index-card -->
+
+  </div><!-- .paper-receipt -->
+</section><!-- #order-survey -->
+{% endblock %}

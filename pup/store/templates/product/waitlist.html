@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block navbar %}
+   <li class="first"><a href="{{ shop_base }}/">{% trans "Home" %}</a></li>
+{% endblock %}
+
+{% block content %}
+<h2>{{ request.user.first_name }}'s Wait List</h2>
+
+{% for p in waitlist.products.all %}
+<ul class="waitmsg clearfix">
+	<li>
+		<div class="waitlist-item-image">
+			<img src="{{p.entree_image}}" alt="{{p.name}}" />
+		</div>
+		<div class="waitlist-item-text">	
+			<a href="{{p.get_absolute_url}}"><h3>{{p.name}}</h3></a> <br />
+			<p>{{ p.entree.description }}</p>
+		</div>	
+		
+	</li>
+</ul>
+{% empty %}
+<p>You do not have any wait listed menus at the moment.</p>
+
+{% endfor %}
+
+
+
+
+{% endblock %}

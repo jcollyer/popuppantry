@@ -1,0 +1,341 @@
+{% extends "base.html" %}
+{% block title %}
+{{ product.name }} | Menus | Pop-Up Pantry
+{% endblock title %}
+{% block description %}
+{{product.name }}: {{product.entree.description}}
+{% endblock description %}
+
+{% block extra_head %}
+
+<meta property="og:site_name" content="Pop-Up Pantry"/> 
+<meta property="og:title" content="{{product.pinterest_name}}"/> 
+<meta property="og:type" content="object"/> 
+<meta property="og:url" content="{{product.get_absolute_url}}"/> 
+<meta property="og:image" content="{{product.entree_hero}}"/> 
+<meta property="og:image:type" content="image/jpeg"/>
+<meta property="og:description" content="{{product.entree.description}}"/> 
+
+{% endblock extra_head %}
+
+
+
+{% block content %}
+{% with prod_desc=product.entree.description app=product.appetizer dessert=product.dessert %}
+	<div class="csrf">{{ csrf_token }}</div>
+	<div id="product_page" style="display:none;"></div>
+	<div class="return_div"><a href="/" class="return">&lt;&lt; Return to my menus</a></div>
+
+
+	<div id="user_menu" class="box">
+		<div id="menu_detail">
+			<div class="product_name_decription">
+				<div class="product_name_top">
+					<h3>{{ product.name }}</h3>
+				</div>
+				<div class="prduct_chef_name">
+					<p>by {{ product.chef_display }} </p>
+				</div>
+				
+
+				<div class ="product_name_hide" style="display:none"><div>{{ product.name }}</div></div>
+				<div class ="product_descript_hide" style="display:none"><p>{{ prod_desc|safe }}</p></div>
+				<div class="menu-slug" style="display:none;">{{ product.slug }}</div>
+			</div>
+			<div id="user_menu_container">
+				<div id="user_menu_leftside">
+					<div id="user_menu_main_pic_hide" style="display:none;"><img src="{{ product.entree_hero }}" /></div> 
+					<div class="user_menu_main_pic">
+
+						<img class="bigMenuPic" src="{{ product.entree_hero }}" />
+						<div class="produce_descript" style="display:none;"><p>{{ prod_desc|safe }}</p></div>
+					  
+					</div>
+					<div class="user_menu_sub_pics clearfix">
+						<div class="user_menu_sub_pic">
+							<img class="regMenuPic" src="{{ product.appetizer_image }}" />
+							<div class="produce_name"><h4>{{ app.name }}</h4></div>
+							<div class="produce_descript" style="display:none;"><p>{{ app.description }}</p></div>
+						</div>
+						<div class="user_menu_sub_pic">
+							<img class="regMenuPic" src="{{ product.dessert_image }}" />
+							<div class="produce_name"><h4>{{ dessert.name }}</h4></div>
+							<div class="produce_descript" style="display:none;"><p>{{ dessert.description }}</p></div>
+						</div>
+					</div>
+					<div class="tab_detail">
+						<ul class="tabs">
+						    <li><a href="#tab1">Pairings</a></li>
+						    <li><a href="#tab2">Prep+Plate</a></li>
+						    <li><a href="#tab3">Allergies</a></li>
+						    <li><a href="#tab4">Nutrition</a></li>
+						</ul>
+						<select class="tab-dropdown"> 
+						    <option value="1">Pairings</option> 
+						    <option value="2">Prep+Plate</option> 
+						    <option value="3">Allergies</option> 
+						    <option value="4">Nutrition</option>  
+						</select>
+
+						<div class="tab_container">
+						    <div id="tab1" class="tab_content" value="1">
+							    <p>{{ product.serving_suggestions.description|safe }}</p>
+						        {% comment %} 
+						        <div class="wine_par">
+						        	<p>Chef recomended <span class="blue">wine</span> paring coming soon</p>
+						        </div>
+						        <div class="beer_par">
+						        	<p>Chef recomended <span class="blue">beer</span> paring coming soon</p>
+						        </div>
+						        <div class="martini_par">
+						        	<p>Chef recomended <span class="blue">martini</span> paring coming soon</p>
+						        </div>
+						        {% endcomment %} 
+						    </div>
+						    <div id="tab2" class="tab_content" value="2">
+						       	<div class="tip">
+						       		<br />
+								  <div class="product_pdf_link">  
+								  	  <a href="/static/pdf/{{product.slug}}.pdf">Download PDF</a>
+								  </div>
+							        <p>{{ product.prep_tips.description|safe }}</p>
+
+								</div>
+						    </div>
+						    <div id="tab3" class="tab_content" value="3">
+						        	
+							        <p>{{ product.food_allergens.description|safe }}</p>
+						    </div>
+						    <div id="tab4" class="tab_content" value="4">
+						        <p>Nutrition information coming soon</p>
+						    </div>
+						</div>
+
+						        {% for chef in product.chef.all %}
+						        <div class="chef_bio_box">
+						        	<div class="chef_img">
+						        		<img src="{{ chef.image }}" />
+						        	</div>
+						        	<div class="chef_descript">	
+						        		<h3>Crafted by  {{ chef.name }}</h3>
+										<p>{{ chef.description }}</p>
+						        	</div>
+						        </div>
+						        {% endfor %}
+
+					</div>
+
+					</div>
+					<div id="user_menu_rightside">
+						<div class="product_description">
+							<div class="product_name">
+								<h3>{{product.name}} </h3>
+							</div>
+							<div class="product_name_description">
+								<p>{{ prod_desc|safe }}</p>
+							{% if product.special_price %}<p>This menu is sold separately from your Premiere Dining plan for ${{product.special_price}} (that's just ${{product.price_per_serving}} per person!)</p> {% endif %}
+						    </div>
+						</div>
+						<div class="menu_social">
+							
+							<ul>
+								<li class="image_li" style="width:40px;">
+									<a href="http://pinterest.com/pin/create/button/?media={{ product.entree_hero|escape }}&description={{ product.pinterest_name|escape}}" class="pin-it-button" count-layout="horizontal"><img border="0" src="//assets.pinterest.com/images/PinExt.png" title="Pin It" /></a>
+
+								</li>
+								<li class="image_li">
+									<div class="fb-like"  style="z-index:9999;" data-href="{{ product.get_absolute_url}}" 
+									data-send="false" data-layout="button_count" 
+									data-width="100" data-show-faces="false"></div>
+								</li>
+								<li class="image_li">
+									<a href="https://twitter.com/share" class="twitter-share-button" data-text="Have you tried @PopUpPantry's {{product.name}}?">Tweet</a>
+
+
+								</li>
+							</ul>
+							
+						</div>
+						
+						{% if product.inventory != 'OS' %}
+
+						  		<div class="order-this-menu order_button orange_button product_page_order {% if user.is_authenticated %} order-item{% else %}register-modal {% endif %}">Order this menu</div>
+								{% else %}
+								
+						  		<div class="waitlist-item order_button blue_button {% if user.is_authenticated %}waitlist-item{% else %}not_logged_in register-modal {% endif %}">Wait List this menu
+						  			
+						  			{% comment %}<div class="coming_soon_box">Coming <br />Soon!</div> {% endcomment %} 
+						  		</div>
+						        {% endif %}
+					
+						<!-- <div class="chef_quote">
+							{% comment %} 
+							<p>"Cheff Quote coming soon" {{product.chef_quote}}</p>
+							{% endcomment %} 
+						</div> -->
+						<div class="invite_friends"><a href="/invite">Invite Your Friends</a></div>
+						<div class="helpbox">
+							<h3>Need Help?</h3>
+							<ul>
+								<li><a href="http://service.popuppantry.com">Post a Question</a></li>
+								<li><a href="http://service.popuppantry.com/customer/portal/emails/new">Email Us</a></li>
+								<li class="phonenumber">Call 424-2-PANTRY</a></li>
+							</ul>
+						</div>
+					</div>
+
+			</div>
+		</div>
+	</div>
+		{% comment %} 
+         <div class="user_box">
+            <ul class="personalize">
+                <li class="box">
+                {% if p.inventory != 'OS' %} <div class="order-arrow order-item">Order</div>{% endif %}
+                <div class="menu-slug">{{ p.slug }}</div>
+                <div class="menu-name">{{ p.name }}</div>
+                
+                    <a href="/product/{{ product.slug }}/">
+                    <div class="image">
+                        <div class="food-image">
+                            <img src="{{ product.entree_image }}" />
+                          {% if p.inventory == 'OS' %} <span class="os"></span> {% endif %}
+                          {% if p.inventory == 'LS' %} <span class="ls"></span> {% endif %}
+
+                            
+                        </div>
+
+                        <div class="popover">
+                        <p>
+                            {{p.user_home_overlay|safe}}
+                        </p>
+                        </div>
+                    </div>
+                    <h3>{{ p.name }}</h3></a>
+                <p class="chef-name">{{p.chef_display}}</p>
+                </li>
+            </ul>
+        </div>
+        
+        {% endfor %}
+        {% endcomment %} 
+
+
+        <div id="waitlist-overlay">
+            <h2>Menu Added to Wait List</h2>
+
+            <p><strong>Thanks for letting us know you’re interested in this menu.</strong></p>
+            <p>
+                It sure has been popular, so our chefs will be preparing another
+                batch soon. We'll email you as soon as it’s available again. And
+                remember, Pop-Up Pantry is “no reservations” so be sure to order
+                this menu quickly once it’s back!
+            </p>
+
+            <p class="continue">
+                <a href="/" class="orange_button_small">Back to Menus</a>
+            </p>
+        </div>
+{% endwith %}
+{% endblock content %}
+
+{% block extra_js %}
+
+<script>
+
+// user menu click image rotation
+  $('.user_menu_sub_pic').click(function () {
+
+    var foodTitleDiv = $(this).find("div[class^='produce_name']");
+    var foodTitle = $(this).find("div[class^='produce_name']").text();
+    var foodDescription = $(this).find("div[class^='produce_descript']").html();
+    var foodTitleTop = $('.product_name_top').text();
+    var foodTitleHidden = $('.product_name_hide').text();
+    var foodDescriptHidden = $('.product_descript_hide').html();
+
+    //control the Small images
+    var foodImage = $(this).find('img');
+    var foodImageSrc = foodImage.prop('src');
+    var foodImageProper = foodImageSrc.match(/(.*)\.[^.]+$/)[1];
+    var foodImageHero = foodImageProper + "-hero.jpg";
+
+    //control the Big image
+    var foodBigImage = $('.user_menu_main_pic').find('img');
+    var foodImageBigImageSrc = foodBigImage.prop('src');
+    var foodImageBigProper = foodImageBigImageSrc.match(/(.*)\.[^.]+$/)[1];
+    var foodImageBigProperLess = foodImageBigProper.replace('-hero', '');
+    var foodImageRegular = foodImageBigProperLess + ".jpg";
+
+    $('.user_menu_main_pic').find('img').remove();
+    $('.user_menu_main_pic').append("<img class='bigMenuPic' src='"+foodImageHero+"'>");
+
+    $(foodImage).remove();
+    $(this).prepend("<img src='"+foodImageRegular+"' class='regMenuPic'>");
+
+    //$('.product_name_top').contents().remove();
+    $('.product_name_hide').append("<div>"+foodTitle+"</div>");
+
+    $(foodTitleDiv).contents().remove();
+    $(foodTitleDiv).append("<h4>"+foodTitleHidden+"</h4>");
+    $('.product_name_hide').children(':first-child').remove();
+
+    //Food item Title
+    $('.product_description').children(':first-child').contents().remove();
+    $('.product_description').children(':first-child').append("<h3>"+foodTitle+"</h3>");
+
+    //Food item Description
+    $('.product_descript_hide').contents().remove();
+    $('.product_descript_hide').append("<p>"+foodDescription+"</p>");
+
+    $(this).find("div[class^='produce_descript']").contents().remove();
+    $(this).find("div[class^='produce_descript']").append("<p>"+foodDescriptHidden+"</p>");
+
+    $('.product_description').children(':last-child').contents().remove();
+    $('.product_description').children(':last-child').append("<p>"+foodDescription+"</p>");
+
+  });
+
+  //user menu tabs
+  $(".tab_content").hide();
+  $("ul.tabs li:first").addClass("active").show();
+  $(".tab_content:first").show();
+
+  //tabs big screen
+  $("ul.tabs li").click(function () {
+    $("ul.tabs li").removeClass("active");
+    $(this).addClass("active");
+    $(".tab_content").hide();
+    var activeTab = $(this).find("a").attr("href");
+    $(activeTab).fadeIn();
+    return false;
+  });
+
+  //tabs small screen - for product page
+  $(".tab-dropdown").change(function () {
+    var thisTabOption = $(this).attr('value');
+    var thisTabOptionContent = $('.tab_container').find("div[value='"+thisTabOption+"']");
+    $(".tab_content").hide();
+    thisTabOptionContent.fadeIn(); //Fade in the active content
+    return false;
+  });
+
+
+
+if (typeof _kmq != 'undefined') {
+_kmq.push(['record', 'viewed potential purchase', {'product name':'{{product.name|escapejs}}'}]);
+  }
+!function(d,s,id){
+	var js,fjs=d.getElementsByTagName(s)[0];
+	if(!d.getElementById(id)){
+	    js=d.createElement(s);
+		js.id=id;
+		js.src="//platform.twitter.com/widgets.js";
+		fjs.parentNode.insertBefore(js,fjs);
+	}
+}(document,"script","twitter-wjs");
+
+</script>
+
+
+
+{% endblock %} 

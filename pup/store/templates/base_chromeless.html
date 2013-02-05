@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block body %}
+<div class="chromeless">
+  {# block.super includes header-block, content-block,... and therefore wraps content #}
+  {{ block.super }}
+</div>
+{% endblock %}
+
+{% block header %}
+<header>
+  <div class="logo3" id="checkout_page_logo">
+    <a href="/">
+      <img src="/static/img/logo3.png" />
+    </a>
+  </div> <!-- .checkout_page_logo -->
+
+  {% block chromeless_exit_link %}
+  <a href="/" class="chromeless-exit-link align-right">CONTINUE SHOPPING</a>
+  {% endblock %}
+
+</header>
+{% endblock %}
+

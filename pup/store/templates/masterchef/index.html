@@ -1,0 +1,879 @@
+{% extends "base.html" %}
+
+
+{% load i18n %}
+{% load satchmo_cart %}
+{% load satchmo_currency %}
+{% load satchmo_util %}
+{% load satchmo_product %}
+{% load satchmo_discounts %}
+{% load normalize_decimal %}
+
+
+
+{% block title %}
+    MasterChef | Pop-Up Pantry
+{% endblock title %}
+
+{% block description %}
+MasterChef's winning dinners delivered to your door from Pop-Up Pantry. Place your food delivery order today! Three-course gourmet dinners straight from Fox's MasterChef. How to order MasterChef dinners. 
+{% endblock description %}
+
+
+
+{% block extra_head %}
+<link type="text/css" rel="stylesheet" href="https://fast.fonts.com/cssapi/255ee29f-9852-42c9-b5aa-29160ab38eb2.css"/>
+    
+    <link rel="stylesheet" href="/static/css/kalendae.css">
+<script type="text/javascript">
+if (typeof _kmq != 'undefined') {
+     _kmq.push(['record', 'started masterchef purchase']);
+var _qevents = _qevents || [];
+_qevents.push(
+{qacct:"p-CtGRuC-swqzEZ",labels:"_fp.event.Started Masterchef Purchase"}
+);
+
+}
+</script>
+{% endblock extra_head %}
+
+{% block content %}
+
+    <div class="masterchef-header">
+        <ul class="carousel">
+            <li>
+                <div class="headline">
+                    <h1><span class="first">Order the winning<br />MasterChef dinners…</span> <span class="last">and judge for yourself!</span></h1>
+                    <p>No celebrity endorsement implied.</p>
+                </div>
+            </li>
+            <li>
+                <img src="/static/img/masterchef-header-christine.jpg" width="940" height="320" alt="Christine’s Dinner" />
+            </li>
+            <li>
+                <img src="/static/img/masterchef-header-josh.jpg" width="940" height="320" alt="Josh’s Dinner" />
+            </li>
+            <li>
+                <img src="/static/img/masterchef-header-christine-vs-josh.jpg" width="940" height="320" alt="Christine vs Josh. You be the judge." />
+            </li>
+        </ul>
+    </div>
+
+{% if not user.is_authenticated %}
+    <div class="masterchef-introduction">
+        <h2>What You Will Get</h2>
+        <p>
+            Want to taste some of the winning dishes from MasterChef for
+            yourself? Order now from Pop-Up Pantry!
+        </p>
+        <p>
+            Get the winning dishes from MasterChef finalists Christine Ha and
+            Josh Marks by placing your order today, and we’ll deliver them to
+            your door! Start enjoying the same winning recipes Gordon Ramsay,
+            Graham Elliot and Joe Bastianich thought were outstanding.
+        </p>
+        <p>
+            With Christine and Josh’s recipes in hand, Pop-Up Pantry’s chefs
+            have fastidiously crafted a three-course dinner from each of them.
+            And because each dinner serves two people, your MasterChef Winning
+            Dinners box includes four portions. We’ll ship them directly to
+            your home or office, so you can be the judge at home!
+        </p>
+        <p>
+            For just $80 – including shipping and handling – you will receive
+            two different 3-course dinners that wowed the MasterChef judges.
+            Here’s what will be arriving at your door:
+        </p>
+        <section>
+            <h3><span>Christine’s Dinner</span></h3>
+            <div>
+                <h4>Thai Crab Salad</h4>
+                <p>
+                    This vibrant salad wowed the judges with its balance of
+                    crisp green papaya, sweet lump crabmeat and a tangy
+                    dressing.
+                </p>
+            </div>
+            <div>
+                <h4>Caramelized Pork Belly</h4>
+                <p>
+                    Christine’s sophisticated and impressive entrée from the
+                    finale. Served with pickled shallots, steamed rice and
+                    sautéed kale with mushrooms.
+                </p>
+            </div>
+                <h4>Apple Pie</h4>
+                <p>
+                    The turning point pie that got Christine to believe in
+                    herself. Chef Gordon said, “The flavor’s amazing.”
+                </p>
+            </section>
+        </section>
+
+        <section class="last">
+            <h3><span>Josh’s Dinner</span></h3>
+            <div>
+                <h4>Cheese Soufflé</h4>
+                <p>
+                    Revenge begins Josh’s meal: this was the savory winner
+                    from his trio of soufflés that took down Frank.
+                </p>
+            </div>
+            <div>
+                <h4>Indian Curry Hen</h4>
+                <p>
+                    Josh aced the mystery box challenge and earned an
+                    enthusiastic high five from Chef Graham in the semifinal.
+                    Served with steamed rice.
+                </p>
+            </div>
+            <div>
+                <h4>Bacon Pecan Tarts with Bourbon Caramel</h4>
+                <p>
+                    Sweet, smoky, spiked and Southern, this addictive dessert
+                    won raves from the judges.
+                </p>
+            </div>
+        </section>
+
+        <h3>Remember</h3>
+        <p>
+            Each dinner serves 2 – that’s just $20 per person! And every
+            dinner includes an appetizer, entrée with sides, and dessert.
+            Super easy preparation instructions get your dinners from kitchen
+            to table in less than 30 minutes, and printed menus and pairing
+            tips are included with every dinner. Are you ready to enjoy the
+            MasterChef experience at home?
+        </p>
+
+        <h3>No Shipping! No Tax! Just Great Food!</h3>
+        <p>
+            During checkout, just select a convenient delivery date and we’ll
+            ship your dinners to your home or office. Afterward, you’ll be
+            enrolled in Pop-Up Pantry’s Premiere Dining program so you’ll
+            never miss our new exclusive monthly offerings.
+        </p>
+    </div>
+
+    <div class="masterchef-sign-up" >
+        <h2>Order Now!</h2>
+        <form method="post" action="/masterchef/register/" class="masterchef-register">
+          {% csrf_token %}
+          
+          {% if registration_form.non_field_errors %}
+            <div class="error">{{ registration_form.non_field_errors }}</div>
+          {% endif %}
+
+                <ul>
+                  {% for field in registration_form %}
+                  <li class="{{ field.html_name }}">
+                    {% if field.html_name != "username" and field.html_name != "quiz" and field.html_name != "group" %}
+                    <label for="{{field.html_name}}">{{field.label}}</label>
+                    {# {{ field.label_tag }} #}
+                    {# {{ field }} #}
+                    {{field.errors}}
+                    {#<input type="{% if field.html_name == "password1" or field.html_name == "password2" %}password{% else %}text{% endif %}" name="{{ field.html_name }}" placeholder="{{ field.label }}"{% if field.errors%} class="error"{% endif %} id="id_{{field.html_name}}" />#}
+                    {{field}}
+                    {% endif %}
+                  </li>
+                  {% endfor %}
+                </ul>
+        
+              {% if invitation_key %}
+                <input type="hidden" name="invitation_key" value="{{invitation_key}}" />
+              {% endif %}
+        
+        
+              <button type="submit" class="button long2">Next</button>
+        </form>
+        <p><strong>Questions?</strong> <a href="http://service.popuppantry.com" target="_blank">service.popuppantry.com</a></p>
+        <p><strong>Already a member?</strong> <a href="/accounts/login/?next=/masterchef/">Sign In</a></p>
+    </div>
+{% endif %}{# not user.is_authenticated #}
+
+
+{% if user.is_authenticated %}
+<form id="checkout-form" method="post" action="/masterchef/checkout/" class="masterchef-checkout">
+{% csrf_token %}
+
+    <h2>Thanks, <strong class="member-full-name">{{ contact.full_name }}</strong>. Please fill out this form to complete your order.</h2>
+
+    {% if errors %}
+      <div class="error">{{ errors }}</div>
+    {% endif %}
+
+    <div class="checkout">
+
+        <div class="info">
+
+              {% comment %}
+              TBD: Do we need this?
+
+              {% if contact.billing_address %}
+
+            
+              <ul class="contact cim-data">
+                <li><h4>Billing</h4></li>
+                {% if contact.full_name %}
+                <li>
+                    {{ contact.full_name }}
+                </li>
+                {% endif %}
+                <li>{{ contact.billing_address.street1 }}</li>
+                {% if contact.billing_address.street2 %}
+                  <li>{{contact.billing_address.street2}}</li>
+                {% endif %}
+                {% if contact.billing_address.city or contact.billing_address.city or contact.billing_address.zip %}
+                  <li>{{ contact.billing_address.city }}, {{ contact.billing_address.state }}, {{ contact.billing_address.postal_code }} </li>
+                {% endif %}
+                <li>{{ contact.billing_address.phone_number }}</li>
+
+
+
+              {% if contact.shipping_address %}
+                <li><h4>Shipping</h4></li>
+                <li>{{contact.shipping_address.street1}}</li>
+                {% if contact.shipping_address.street2 %}<li>{{contact.shipping_address.street2}}</li>{% endif %}
+                {% if contact.shipping_address.city or contact.shipping_address.city or contact.shipping_address.zip %}<li>{{contact.shipping_address.city}}, {{contact.shipping_address.state}}, {{contact.shipping_address.postal_code}}</li>{% endif %}                   
+ 
+              {% endif %}
+
+
+                <li>
+                  <a class="edit-info">Edit</a>
+                </li>
+              </ul>
+
+
+            {% endif %}  
+              {% endcomment %}
+  
+
+                {# Personal Info #}
+                
+                <ul class="contact {% if contact.cim_id %} hidden {% endif %}contact-form">
+                    <li><h3>Personal Info</h3></li>
+
+                {% for field in contact_form %}
+
+                    {% if field.html_name != "title" and field.html_name != "addressee" and field.html_name != "organization" and field.html_name != "paymentmethod" and field.html_name != "next" and field.html_name != "country" and field.html_name != "ship_country" and field.html_name != "discount" %}
+                    <li class="{{ field.html_name }}{% if field.errors %} error {% endif %}">
+                        {% if field.html_name == "street1" or field.html_name == "street2" or field.html_name == "ship_street1" or field.html_name == "ship_street2"  or field.html_name == "ship_addressee" %}
+                            {% if field.html_name == "street1" %}
+                                <label for="id_street1">Address*</label>
+                            {% endif %}
+                            {% if field.html_name == "ship_addressee" %}
+                                <label for="id_ship_addressee">Name (if different)</label>
+                            {% endif %}
+                            {% if field.html_name == "street2" %}
+                                <label for="id_street2">Apt or Suite</label>
+                            {% endif %}
+                            {% if field.html_name == "ship_street1" %}
+                                <label for="id_ship_street1">Street Address*</label>
+                            {% endif %}
+                            {% if field.html_name == "ship_street2" %}
+                                <label for="id_ship_street2">Apt or Suite</label>
+                            {% endif %}
+                        {% else %}
+                            {{ field.label_tag }}
+                        {% endif %}
+                        {{ field }}
+                        {% if field.html_name == "street1" or field.html_name == "ship_street1" %}
+                            <em class="note">Note: We cannot ship to P.O. Boxes or APO/FPO/DPO addresses.</em>
+                        {% endif %}
+                        {% for error in field.errors %}
+                            <div class="error-message">{{ error }}</div>
+                        {% endfor %}
+                    </li>
+                    {% endif %}
+
+                {% endfor %}
+
+            </ul>
+
+            
+
+   			{% if contact.credit_cards %}
+            <ul class="contact payment cim-data">
+                <li><h3>Payment</h3></li>
+
+                {% for card in contact.credit_cards %}
+                    <li class="credit-card">
+                      <label><input type="radio" name="payment_profile_id" value="{{card.payment_profile_id}}" {% if forloop.first %}checked="checked"{% endif %} /> Pay with this card</label>
+                      <p>
+                        <strong>{{card.credit_type}}</strong><br />
+                        Card Number: {{card.display_cc}}<br />
+                        Exp Date: {{card.expire_date}}
+                      </p>
+                    </li>
+                {% endfor %}
+
+                <li style="margin-top: 0.5em;">
+                  <a class="edit-info">Pay with a new card</a>
+                </li>
+
+
+            </ul>
+  
+
+
+
+				{% endif %}
+
+
+            <ul class="contact payment-form {% if contact.credit_cards %} hidden {% endif %}">
+                <li><h3>Payment</h3></li>
+                                                                                        
+            
+                
+            
+                
+            
+                
+                <li class="credit_type">
+                    
+                        <label for="id_credit_type">Credit Card Type</label>
+                    
+                    <select name="credit_type" id="id_credit_type">
+<option value="American Express">American Express</option>
+<option value="Visa">Visa</option>
+<option value="Mastercard">Mastercard</option>
+<option value="Discover">Discover</option>
+</select>
+                    
+                </li>
+                
+            
+                
+                <li class="credit_number">
+                    
+                        <label for="id_credit_number">Credit Card Number</label>
+                    
+                    <input autocomplete="off" id="id_credit_number" type="text" name="credit_number" maxlength="20" />
+                    
+                </li>
+                
+            
+                
+                <li class="month_expires">
+                    
+                        <label for="id_month_expires">Month expires</label>
+                    
+                    <select name="month_expires" id="id_month_expires">
+<option value="1">01</option>
+<option value="2">02</option>
+<option value="3">03</option>
+<option value="4">04</option>
+<option value="5">05</option>
+<option value="6">06</option>
+<option value="7">07</option>
+<option value="8">08</option>
+<option value="9">09</option>
+<option value="10">10</option>
+<option value="11">11</option>
+<option value="12">12</option>
+</select>
+                    
+                </li>
+                
+            
+                
+                <li class="year_expires">
+                    
+                        <label for="id_year_expires">Year expires</label>
+                    
+                    <select name="year_expires" id="id_year_expires">
+<option value="2012">2012</option>
+<option value="2013">2013</option>
+<option value="2014">2014</option>
+<option value="2015">2015</option>
+<option value="2016">2016</option>
+<option value="2017">2017</option>
+<option value="2018">2018</option>
+<option value="2019">2019</option>
+<option value="2020">2020</option>
+<option value="2021">2021</option>
+<option value="2022">2022</option>
+</select>
+                    
+                </li>
+                
+            
+                
+                <li class="ccv">
+                    
+                        <label for="id_ccv">Credit Card Code</label>
+                    
+                    <input autocomplete="off" id="id_ccv" type="text" name="ccv" maxlength="4" />
+                    
+                </li>
+                
+            
+            
+            </ul>
+
+
+
+
+            <div class="clear"></div>
+
+
+        </div>
+
+
+        <div class="order">
+
+          <h3>Select a date to receive your order</h3>
+          <h4>(Choose from the highlighted range below)</h4>
+            <div class="shipping-date">
+
+                <div class="shipping-cal"></div>
+                <div class="shipping-cal-fields">
+                    <p>
+                        <select name="shipping_date" >
+                            <option value="">Select one</option>
+                        {% for d in dates %}
+                            <option>{{ d }}</option>
+                        {% endfor %}
+                        </select>
+                    </p>
+                </div>
+
+            </div>
+
+            <h4 class="terms">Terms of Service</h4>
+
+            <div class="terms-of-service">
+                Deliveries to offices or businesses are guaranteed by the end of the business day. Deliveries to residences may be as late as 7:30 PM. Please review preparation instructions included with your meals, and place your meals in the refrigerator (for preparation within 3 days) or in the freezer (for preparation anytime) by 8:00 PM on the day received. You must select a date when the delivery can be accepted in person, however we will gladly refund or replace meals delivered late, damaged, or lost in transit. We guarantee your satisfaction, so please do not hesitate to contact Customer Service.
+            </div>
+
+            <div class="tos-checkbox">
+                <input type="checkbox" class="tos" id="id_tos_checkbox" />
+                <p><label for="id_tos_checkbox">I understand I must transfer my food from box to freezer before 8 PM the day I receive it.*</label></p>
+            </div>
+
+            <div class="sub-club">
+                <input type="checkbox" class="sub" id="id_sub_checkbox" checked="checked"  />
+                <p><label for="id_sub_checkbox">I understand that I am joining <abbr title="Pop-Up Pantry">PUP</abbr>’s Premiere Dining subscription club.</label>
+                <a href="/plans/" title="Premiere Dining subscription club" target="_blank">Learn More</a></p>
+            </div>
+
+            <h3>Confirm Your Order</h3>
+
+
+		{% if cart %}
+         <div class="shopping-cart {{cart.id}}">
+              <ul class="section">
+              {% for cartitem in cart %}
+                  <li class="{{ cartitem.id }}">
+                      {% if 'MasterChef' not in cartitem.product.name %}
+                      <span class="remove_item">x</span>
+                      {% endif %}
+                            <img src="{{ cartitem.product.entree_image }}" alt="" align="left" />
+
+                      {% if 'MasterChef' in cartitem.description %}
+                      <h4>{{ cartitem.description }}</h4>
+                      {% else %}
+                      <h4><a href="/product/{{cartitem.product.slug}}">{{ cartitem.description }}</a></h4>
+                      {% endif %}
+
+                      {{ cartitem.product.description }}
+
+                      Cost: <span class="unit-price{% if 'MasterChef' in cartitem.product.name %} masterchef{% endif %}">{{ cartitem.unit_price|currency }}</span> x <input type="text" class="quantity" value="{{ cartitem.quantity|normalize_decimal }}" />
+                      &nbsp;
+                      (serves <span class="serves">{{cartitem.serves}}</span>)
+                  </li>
+              {% endfor %}
+              </ul>
+
+            </div>
+         <div class="section">
+
+              <ul class="line-items">
+                <li class="subtotal">
+                  <label>Subtotal</label>
+                  <div class="price">{{ cart.sub_total|currency }}</div>
+                </li>
+
+                <li class="discount hidden">
+                  <label>Discount</label>
+                  <div class="price">
+                    $0.00
+                  </div>
+                </li>                
+                
+                {% if contact.balance %}
+                <li class="balance">  
+                  <label>Balance</label>
+                  <div class="price">-{{ contact.balance|currency }}</div>
+                </li>
+                {% endif %}
+                
+                <li class="tax">  
+                  <label>TAX</label>
+                  <div class="price">$0.00</div>
+                </li>
+
+                <li class="shipping">
+                  <label>Shipping</label>
+                  <div class="price">$0.00</div>
+                
+                </li>
+                
+                <li class="hr"><hr /></li>
+                
+                <li class="line-total">
+                  <label>Order Total</label>
+                  <div class="price">
+
+                        {{ cart.total|currency }}
+
+                    
+                  </div>
+                </li>
+
+			
+
+
+		{% else %}
+
+            <div class="shopping-cart">
+              <ul class="section">
+                       <li class="{{ mc_dinner.id }}">
+                      <span class="remove_item">x</span>
+                            <img src="{{ mc_dinner.entree_image }}" alt="" align="left" />
+                      <h4>{{ mc_dinner.name }}</h4>
+
+                      Cost: <span class="unit-price masterchef">{{ mc_dinner.price|currency }}</span> x <input type="text" class="quantity" value="{{ cartitem.quantity|normalize_decimal }}" />
+                  </li>         
+
+              
+              </ul>
+		</div>
+
+            <div class="section">
+
+              <ul class="line-items">
+                <li class="subtotal">
+                  <label>Subtotal</label>
+                  <div class="price">{{mc_dinner.price|currency}}</div>
+                </li>
+
+                <li class="discount hidden">
+                  <label>Discount</label>
+                  <div class="price">
+                    $0.00
+                  </div>
+                </li>                
+
+                <li class="tax">  
+                  <label>TAX</label>
+                  <div class="price">$0.00</div>
+                </li>
+                
+
+                <li class="shipping">
+                  <label>Shipping</label>
+                  <div class="price">$0.00</div>
+                
+                </li>
+                
+                <li class="hr"><hr /></li>
+                
+                <li class="line-total">
+                  <label>Order Total</label>
+                  <div class="price">
+                    
+                    
+                        {{mc_dinner.price|currency}}
+                    
+                    
+                  </div>
+                </li>
+
+
+
+
+
+
+		{% endif %}
+
+              </ul>
+
+
+            </div>
+
+
+        </div>
+
+
+
+        <div class="info">
+            <div class="place-order">
+
+                <p class="submit"><button class="button long2" type="submit">Place Order</button></p>
+
+            </div>
+            <p><strong>Questions?</strong> <a href="http://service.popuppantry.com" target="_blank">service.popuppantry.com</a></p>
+        </div>
+
+
+    </div>
+
+{% if contact.cim_id %}
+<input type="hidden" name="profile_id" value="{{contact.cim_id}}" />
+{% endif %}
+
+</form>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <form id="upgrade-plan" class="upgrade-plan-form" method="post" action="{{message.alert_link}}">
+  
+    <input type="hidden" class="group" name="group" value="{{message.alert_post.group}}" />
+    <input type="hidden" class="ajax" name="ajax" value="{{message.alert_post.ajax}}" />
+    <input type="submit" class="hidden" />
+    {% csrf_token %}
+  </form>
+
+{% endif %}{# user.is_authenticated #}
+
+    <div style="clear: both;"></div>
+    <div class="masterchef-footer">
+        <h3>Just How Easy Is It to Prepare?</h3>
+        <p>
+            Pop-Up Pantry’s MasterChef dinners are exquisitely prepared with
+            only the finest ingredients and are artfully packaged. Our food is
+            blast chilled at our kitchen to lock in its freshness and flavor
+            profile, then shipped to you in insulated cooling containers. If
+            you can boil water or bake a frozen pizza, you can make Pop-Up
+            Pantry! Our food can be heated in a pot of boiling water or in
+            your oven. Just follow our super easy preparation instructions,
+            and you’ll be plating your gourmet MasterChef dinners in a matter
+            of minutes.
+        </p>
+    </div>
+    <div class="masterchef-legal">
+        <p>
+            MasterChef is a trademark of Reveille Independent, LLC and used
+            under license. The MasterChef logo is a trademark of Shine
+            Limited and used under license. All rights reserved.
+        </p>
+    </div>
+
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{{ media_url}}js/jquery.bxSlider.min.js"></script>
+    <script src="/static/js/libs/kalendae.min.js" type="text/javascript" charset="utf-8"></script>
+    <script type="text/javascript" charset="utf-8">
+
+                
+        $('.street1').before('<li><h3>Billing Address</h3></li>');
+        $('.ship_addressee').before('<li class="shipping-address-title"><h3>Shipping Address</h3></li>');
+
+        var availableDates = [{% for d in dates %}'{{ d }}'{% if not forloop.last %}, {% endif %}{% endfor %}];
+
+        if ($('.shipping-cal').kalendae !== undefined) {
+            try {
+            $('.shipping-cal').kalendae({
+                months: 1,
+                format: 'MM/DD/YYYY',
+                mode: 'single',
+                direction: 'future',
+                {% if shipping_date %}
+                selected: '{{shipping_date}}',
+                {% endif %}
+                viewStartDate: availableDates[0],
+                blackout: function (date) {
+
+                    if($.inArray(Kalendae.moment(date).format("MM/DD/YYYY"), availableDates) < 0) {
+                        return Kalendae.moment(date).date();
+                    }
+                }
+            });
+            // Hide the actual calendar fields.
+            $('.shipping-cal-fields').css({
+                'position': 'absolute',
+                'left': '-9999px'
+            });
+            } catch(e) {}
+        }
+
+        function zeroPad(num,count)
+        {
+            var numZeropad = num + '';
+            while(numZeropad.length < count) {
+            numZeropad = "0" + numZeropad;
+        }
+            return numZeropad;
+        }
+
+        $('#id_copy_address').click(function() {
+
+            if($('#id_copy_address').not(':checked').length) {
+                $('.ship_addressee, .ship_street1, .ship_street2, .ship_city, .ship_state, .ship_postal_code, .shipping-address-title').show();
+            }
+            else {
+                $('.ship_addressee, .ship_street1, .ship_street2, .ship_city, .ship_state, .ship_postal_code, .shipping-address-title').hide();
+            }
+
+        });
+
+
+     $('.post-plan-change').live('click', function() {
+
+        $.ajax({
+          type: 'POST',
+          url: $('#upgrade-plan').attr('action'),
+          data: $('#upgrade-plan').serializeArray(),
+          success: function(resp, textStatus){
+          
+          
+            if (resp.error) {
+              
+              if ($('.cart-message').length == 0){
+                $('.order h3').before('<div class="cart-message"></div>');
+              }
+                
+             $('.cart-message').html(resp.error);
+              
+   
+            } else {
+
+              $('.line-items .line-total .price').html(resp.total);
+              $('.line-total .price').html(resp.cart_total);
+              $('.line-items .subtotal .price').html(resp.cart_sub_total);
+              $('.line-items .tax .price').html(resp.cart_tax);
+              $('.shopping-cart li').each(function(index, element) {
+                  element = $(element);
+
+                  // Skip MasterChef items
+                  // TBD: It’d probably be better if we added a “special-price” class name to items we should skip here.
+                  if (String(element.html()).toLowerCase().indexOf("masterchef") >= 0) return;
+
+                  element.find('.unit-price').html(resp.cart_item_price);
+              });
+              $('.cart-message').remove();               
+            }          
+          
+          },
+          error: function(xhr, textStatus, errorThrown){
+              console.log('failed');
+              console.log(textStatus);
+          }
+
+        });
+
+      
+        return false;    
+      });
+
+
+      var shippingDateField;
+        $('#checkout-form').submit(function() {
+
+            $('.error').remove();
+
+            if ($('.k-selected').length) {
+                
+                var dateStr = $('.k-selected').attr('data-date').split("-"); 
+                var sd = new Date(dateStr[0], dateStr[1], dateStr[2]);
+
+
+                var month = sd.getUTCMonth();
+
+                // TBD: Do we need this line?
+                // var shipdate = month + "/" + sd.getUTCDate() + "/" + sd.getUTCFullYear();
+
+                var shipdate = zeroPad(month, 2) + "/" + zeroPad(sd.getUTCDate(), 2) + "/" + sd.getUTCFullYear();
+
+                var isAvailable = false;
+                for (var index = 0; index < availableDates.length; index++) {
+                    if (availableDates[index] === shipdate) {
+                        isAvailable = true;
+                    }
+                }
+
+                if (isAvailable) {
+                    $('select[name*=shipping_date]').val(shipdate);
+                }
+            }
+
+            if ($('select[name*=shipping_date]').val().replace('Select one','') == "") {
+              $('.shipping-cal').prepend('<span class="error" style="display: block;">Please select a shipping date.</span>');
+            }
+
+            $('#id_first_name, #id_last_name, #id_phone, #id_street1, #id_city, #id_postal_code, ').each(function(index){ 
+                if ($.trim($(this).val()).length == 0 ) {
+                  $(this).prev().append('<span class="error">This field cannot be blank.</span>');
+                
+                }
+            });
+
+            if ($('#id_state').val() == '---Please Select---') {
+              $(this).prev().append('<span class="error">Please select a State.</span>');
+            }
+
+
+
+            if ($('.tos').not(':checked').length) {
+
+                if(!$('.tos-checkbox .error').length) {
+                  $('.tos-checkbox').prepend('<span class="error">You must agree to the delivery rules in order to check out.</span><br />');
+                }
+            }
+
+            if ($('.sub').not(':checked').length) {
+
+                if(!$('.sub-club .error').length) {
+                    $('.sub').before('<span class="error">You must agree to join PUP\'s Premiere Dining subscription club.</span>');
+                }
+            }
+
+            if ($('.error').length) {
+
+                // TBD: Are the errors clear enough with this?
+                // $('.place-order').before('<div class="error">Please correct the errors marked in red.</div>');
+                setTimeout(function() {
+            			$('html, body').animate({
+            				scrollTop: $(".error:first").offset().top
+            			}, 1000);
+            		}, 1);
+                return false;
+            }
+            else {
+                $('form .submit').attr('disabled', 'disabled')
+                return true;
+            }
+
+        });
+
+    </script>
+{% endblock extra_js %}
+

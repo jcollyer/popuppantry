@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block navbar %}
+   <li class="first"><a href="{{ shop_base }}/">{% trans "Home" %}</a></li>
+{% endblock %}
+
+{% block content %}
+
+{% if success_text %}
+<p>{{success_text}}</p>
+{% else %}
+<p>Welcome back to Pop-Up Pantry! Please enter your email below to reactivate your account.</p>
+
+<form action="/accounts/reactivate/" method="post">{% csrf_token %}
+{% for field in form %}
+    {% if field.errors %}
+        <p>{{field.errors|safe}}</p>
+    {% endif %}
+    {{ field }}
+{% endfor %}
+<input type="submit" value="Submit" />
+</form>
+
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends "survey/base.html" %}{% load i18n %}
+{% block styles %}
+<style type="text/css">
+  input[type="radio"] { vertical-align: top; }
+  span.required {color:red;}
+  span.form-helptext {color:green;}
+  div.horizontal ul li {padding-left:10px; margin-left:10px; display:inline;}
+  div.horizontal ul {margin-left:20px; padding-left:10px; display: inline;}
+</style>
+{% endblock %}
+
+{% block chromeless_exit_link %}
+<a href="/" class="chromeless-exit-link align-right">{% trans "EXIT &amp; GO BACK" %}</a>
+{% endblock %}
+
+{% block content %}
+<h1>{{ title }}</h1>
+
+<div class="paper-receipt clearfix">
+  <form method="post" class="focus-input" action="{{ request.path }}">
+    {% csrf_token %}
+    <div class="index-card">
+      <div class="index-card-header clearfix">
+        {% block index-card-header %}
+        {% endblock index-card-header %}
+      </div><!-- .index-card-header -->
+
+      <div class="index-card-main clearfix">
+        <div class="hidden">
+        {% for form in additional_hidden_forms %}
+        {{ form }}
+        {% endfor %}
+        </div>
+
+        {% for survey in surveys %}
+        {% include "survey/_survey.html" %}
+        {% endfor %}
+
+        <div class="submit-block">
+        {% block submit %}
+        <div class="submit-row">
+          <button type="submit" class="default" name="__vote">
+            {% trans 'Submit' %}
+          </button>
+        </div>
+        {% endblock %}
+        </div><!-- .submit-block -->
+
+      </div><!-- .index-card-main -->
+    </div><!-- .index-card -->
+
+  </form>
+</div><!-- .paper-receipt -->
+
+{% endblock %}

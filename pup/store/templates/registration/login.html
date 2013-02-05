@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+        <h2>Sign-In</h2>
+
+        <div class="register box">
+
+            {% if form.non_field_errors %}
+            <p class="error">{% for err in form.non_field_errors %}{{ err|safe }}{% if not forloop.last %}<br/>{% endif %}
+            {% endfor %}</p>
+            {% endif %}
+
+            <form method="post" action=".">{% csrf_token %}
+
+                <ul>
+                    {# {{ form.as_ul }} #}
+                    <li><label for="id_email">Email:</label> <input id="id_email" type="text" name="username" maxlength="75" /></li>
+<li><label for="id_password">Password:</label> <input type="password" name="password" id="id_password" /></li>
+                </ul>
+
+            <input type="submit" class="orange_button_small sign_up_button" value="Login" style="margin-left:125px;" />
+            <input type="hidden" name="next"
+            {% if next %}
+                value={{ next }} />
+            {% else %}
+                 {% url satchmo_account_info as accounturl %}
+                 {% if accounturl %} value="{% url satchmo_account_info %}" /> {% endif %}
+            {% endif %}
+            </form>
+            {% comment %} We jump through hoops with the urls so it doesn't bomb with django's built in unit tests.{% endcomment %}
+            {% url auth_password_reset as auth_password_reset %}
+            {% url reactivate as reactivate %}
+                <p>If you do not have an account, please <a class="register-modal">sign up</a>.</p>
+            {% if auth_password_reset %}
+                <p>If you do not remember your password, please <a href="{% url auth_password_reset %}">click here</a> to have it reset.</p>
+            {% endif %}
+            {% if reactivate %}
+                <p>If you wish to reactivate your account, please <a href="{% url reactivate %}">click here</a>.</p>
+            {% endif %}
+            
+            <div class="">
+            <hr />
+            
+            <h4>Or Login with your Facebook account</h4>
+            <a href="/facebook/login"><img src="/static/img/facebook-connect.png" /></a>
+            </div>
+        </div>
+
+{% endblock %}

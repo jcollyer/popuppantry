@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block content %}
+	<h2>Your Taste Profile</h2>
+
+	<div class="taste-profile">
+
+	{% if not user.is_authenticated %}
+
+
+		<div id="register-overlay" class="box">
+
+      <img src="/static/img/logo-clear.png" />
+      <h3>Register for FREE to discover your Taste Profile!</h3>
+
+
+
+			<form method="post" action="/accounts/register/">
+				{% csrf_token %}
+				<ul>
+			        {% for field in registration_form %}
+		        	<li>
+			        	{% if field.html_name != "quiz" and field.html_name != "group" %}
+                <input type="{% if field.html_name == "password1" or field.html_name == "password2" %}password{% else %}text{% endif %}" name="{{ field.html_name }}" placeholder="{{ field.label }}"{% if field.errors%} class="error"{% endif %}  id="id_{{field.html_name}}" />
+
+
+
+			        	{% endif %}
+			        </li>
+			        {% endfor %}
+				</ul>
+					    <input type="submit" class="button long" value="Submit"/>
+				<input name="ajax" value="True" type="hidden" />
+				<input name="quiz" value="{{ quiz.id }}" type="hidden" />
+
+			</form>
+
+      <span>Already a member? <a href="/accounts/login/">Sign In</a></span>
+      
+
+		</div>
+
+	{% endif %}
+
+		<div class="box">
+
+			<h3 class="ribbon">{{ profile }}</h3>
+
+			{{ profile.description|safe }}
+
+			 {% if user.is_authenticated %}<a class="menus" href="/">Delicious! Show Me Menus</a> {% endif %}
+      <a href="mailto:service@popuppantry.com?subject=My Taste Profile isn't really me&body=Tell%20us%20more%20about%20your%20food%20preferences%20so%20we%20can%20tailor%20your%20Pop-Up%20Pantry%20experience%20more%20accurately:%0D%0A%0D%0A">Not really you? Tell us more.</a>
+
+
+      
+
+      
+		</div>
+
+		{% for i in profile.images.all %}
+			<img src="{{ i.img_url }}" alt="" />
+		{% endfor %}
+
+
+
+
+	</div>
+
+{% endblock content %}

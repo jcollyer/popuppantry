@@ -1,0 +1,103 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_modify %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" type="text/css" href="{% load adminmedia %}{% admin_media_prefix %}css/forms.css" />
+
+<style type="text/css">
+form#inventoryform input.text {
+    width: 6em;
+}
+
+
+</style>
+{% endblock %}
+{% block extrahead %}{{ block.super }}
+    <script type="text/javascript">
+    var satchmo = satchmo || {};
+    $(document).ready(function() {
+        $('.hide-inactive').click(function(){
+            console.log('in right func');
+            $('.inactive').hide();
+        });
+        $('.show-inactive').click(function(){
+            $('.inactive').show();
+        });
+    });
+    satchmo.disable_zeroes = function(src, dest) {
+        $(src).each(function() {
+            satchmo.disable_zero(this, dest)
+        });
+    };
+    
+    satchmo.disable_zero = function(elt, dest) {
+        var v = $(elt).val();
+        if (v == '0') {
+            dest = dest + '__';
+            var id = '#' + elt.id.replace(/qty__/, dest);
+            //console.log('disabling: ' + id);
+            $(id)[0].checked = false;
+        }
+        else {
+            //console.log("not disabling " + elt.id + " = " + v);
+        }
+    }
+    </script>
+{% endblock %}
+
+{% block coltype %}colMS{% endblock %}
+{% block bodyclass %}dashboard{% endblock %}
+{% block userlinks %}<a href="{% url django-admindocs-docroot %}">{% trans 'Documentation' %}</a> / <a href="{% url admin:password_change %}">{% trans 'Change password' %}</a> / <a href="{% url admin:logout %}">{% trans 'Log out' %}</a>{% endblock %}
+{% block breadcrumbs %}{% if not is_popup %}
+<div class="breadcrumbs">
+     <a href="{% url admin:index %}">{% trans "Home" %}</a> &rsaquo;
+     {% trans "Food Inventory Management" %}
+</div>
+{% endif %}{% endblock %}
+{% block content %}
+<div id="content-main">
+{% if form.errors %}
+    <p class="errornote">
+    {% blocktrans count form.errors|length as counter %}Please correct the error below.{% plural %}Please correct the errors below.{% endblocktrans %}
+    </p>
+{% endif %}
+<button class="hide-inactive">Hide Inactive</button>
+<button class="show-inactive">Show Inactive</button>
+{% if form.fields %}
+<form method="post" id="inventoryform">{% csrf_token %}
+    <table>
+        <tr>
+            <th>{% trans 'Name' %}</th>
+            <th>{% trans 'Inventory' %}</th>
+        </tr>
+    {% for p in products %}
+        <tr {% if not p.active %}class="inactive"{% endif %}><td><strong>{{p.name}} (Note: not all items may appear if food is in an additional menu)</strong></td>
+        {% for field in form %}
+            {% if p.name in field.help_text %}
+            <tr {% if not p.active %}class="inactive"{% endif %}>
+            <td>{{ field.help_text}}</td>
+            {% if field.errors %}
+                	<span class="error">{{ field.errors }}</span><br/>
+        	{% endif %}
+                <td>{{ field }}</td>
+        	</tr>
+            {% endif%}
+        {% endfor %}
+        </tr>
+    {% endfor %}
+    </table>
+<div style="clear:both;">
+<input id="send_waitlist_email"  type="checkbox" name="send_waitlist_email">Send Waitlist Email Update</div>
+
+
+<input type="submit" value="Save" class="default" />
+<input type="reset" value="Reset" class="default" />
+<h2>{% trans 'Helpers' %}</h2>
+
+</form>
+{% else %}
+    <p>{% trans "No inventory items." %}</p>
+{% endif %}
+</div>
+{% endblock %}

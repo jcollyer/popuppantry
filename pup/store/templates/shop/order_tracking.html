@@ -1,0 +1,211 @@
+{% extends "base_chromeless.html" %}
+
+{% load i18n %}
+{% load satchmo_order %}
+{% load satchmo_google %}
+
+
+
+
+{% load satchmo_currency %}
+{% load satchmo_checkout %}
+{% load satchmo_util normalize_decimal %}
+
+{% block container %}
+<div class="checkout_wrap">
+  {{ block.super }}
+</div> <!-- .checkout_wrap -->
+{% endblock %}
+
+{% block header %}
+<div class="checkout_inner_wrap">
+  {{ block.super }}
+</div> <!-- .checkout_inner_wrap -->
+{% endblock %}
+
+{% block main %}
+<div class="checkout_inner_wrap">
+  {{ block.super }}
+</div> <!-- .checkout_inner_wrap -->
+{% endblock %}
+
+
+
+
+{% block content %}
+<div class="csrf">{{ csrf_token }}</div>
+
+
+  <div class="receipt clearfix">
+    <div class="receipt_top">
+        <div class="receipt_top_left">
+            <h2>ORDER CONFIRMATION</h2>
+        </div>
+        <div class="receipt_top_middle">
+            <h4>Order Number</h3>
+            <h3>#{{ order.order_number }}</h3>
+        </div>
+        <div class="receipt_top_right">
+            {% if not order.gift_only %}
+            <h4>Shipping Date</h3>
+            <h3>{{ order.shipping_date }}</h3>
+            {% endif %}
+        </div>
+    </div> <!-- .recipt_top -->
+    <div class="receipt_address">
+        <div class="receipt_address_left">
+            <h2>Billing Info</h2>
+            <p>{{ order.ship_addressee }}</p>
+            <p>{{ order.ship_city }} {{ order.ship_state }} {{ order.ship_postal_code }} {{ order.ship_country }}</p>
+            <p>{{order.contact.email}}</p>
+            <p>{{order.contact.primary_phone}}</p>
+            <br />
+            <p>{{ order.full_ship_street }}</p>
+            <p>{{ order.ship_city }} {{ order.ship_state }} {{ order.ship_postal_code }} {{ order.ship_country }}</p>
+        </div>
+        <div class="receipt_address_middle">
+            {% if not order.gift_only %}
+            <h2>Shipping Info</h2>
+            <p>{{ order.ship_addressee }}</p>
+            <p>{{ order.full_ship_street }}</p>
+            <p>{{ order.ship_city }} {{ order.ship_state }} {{ order.ship_postal_code }} {{ order.ship_country }}</p>
+            {% endif %}
+        </div>
+        <div class="receipt_address_right">     
+            <h2>Order Status</h2>
+            <p>{{order.status}}</p>
+            {% if not order.gift_only %}
+            <h3>Shipping Method: FedEx</h3>
+            <p>Delivery Date: {{ order.shipping_date|date:"D M d Y" }}</p>
+            {% endif %}
+        </div>
+    {% if order.ordershipping_set.all %}
+        <h2>Tracking ID{% if order.ordershipping_set.count > 1 %}s{% endif %}:</h2> 
+    {% for s in order.ordershipping_set.all %} 
+	<a href="http://www.fedex.com/Tracking?tracknumbers={{s.tracking_number}}&cntry_code=us&clienttype=ivother&">{{s.tracking_number}}</a>{% if not forloop.last %},{%endif%}{% endfor %}</br>{% endif %} 
+    </div>
+
+    <div class="receipt_items">
+        <table>
+            <tr>
+                <th>MENU</th>
+                <th>PREP</th>
+                <th>QTY</th>
+                <th>COST</th>
+                {% if item.discount %}<th>DISCOUNT</th>{% endif %}
+                <th>TOTAL</th>
+            </tr>
+            {% for item in order.orderitem_set.all %}
+            <tr>
+                <td><h3><a href="/product/{{item.product.slug}}/" target="_blank">{{ item }}</a>{% if item.product.is_gift %}
+                 Recipient: {{item.gift_recipient}} </h3><br />
+               	<h3 style="color:#777777">You asked us to send the gift email on <span style="color:#333333;">{{item.gift_date|date:"D M d, Y"}}</span>.</h3>
+                {% endif %}
+                </td>
+                <td>{% if not item.product.is_gift %}<a href="/static/pdf/{{item.product.slug}}.pdf"><div class="product_pdf_link"></div></a>{% endif %}</td>
+                <td style="font-family:'MuseoSans-300', Helvetica, sans-serif;">{{item.quantity|normalize_decimal}}</td>
+                <td style="color:#ccc;">{{item.unit_price|currency}}</td>
+                {% if item.discount %}<td>{{ item.discount|currency }}</td>{% endif %}
+                <td>{{item.sub_total|currency}}</td>
+            </tr>
+             {% endfor %}
+        </table>
+    </div>
+    <div class="receipt_payment">
+        <h2>Payment History</h2>
+        <table>
+            <tr>
+                <th>DATE</th>
+                <th>METHOD</th>
+                <th>EXPIR</th>
+                <th>AMOUNT</th>
+            </tr>
+            {% for p in order.payments.all %}
+             {% if p.card %} 
+            <tr>
+                <td>{{order.time_stamp|date:"M. d, Y" }}</td>
+                <td>&nbsp;&nbsp;&nbsp;&nbsp;<img class="cc-icon" src="/static/img/{{p.card.credit_type}}.png" /></td>
+                <td>{{p.card.expire_date}}</td>
+                <td>{{p.amount|currency}}</td>
+            </tr>
+        
+            {% else %}
+            <tr>
+                <td>{{order.time_stamp|date:"M. d, Y" }}</td>
+                <td>&nbsp;&nbsp;&nbsp;&nbsp;<img class="cc-icon" src="/static/img/icon-gift-card.png" /></td>
+                <td>{{p.reason_code }}</td>
+                <td>{{p.amount|currency}}</td>
+            </tr>
+
+            {% endif %}
+
+            {% endfor %}
+        </table>
+    </div>
+    <div class="receipt_personal">
+      {% if five_buck_promo %}
+       <a href="/home">
+        <div class="receipt_coupon">
+            <h3>an exclusive offer just for you</h3>
+            <h2>Place another order in the next 24 hours</h2>
+            <h2>and get $5 OFF instantly!</h2>
+            <h4>Hurry, this offer expires tomorrow!</h4>
+         </div>
+        </a>
+        {% endif %} 
+         <div class="receipt_extras">
+            <div class="receipt_extra_img">
+                <div class="receipt_pic_flag">
+                    <h2>Give a</h2>
+                    <h3>Gift</h3>
+                </div>
+               <a href="/product/gifting" target="_blank"> <img src="/static/img/gifting-entree.jpg"></a>
+                <div class="receipt_img_text">
+                    <p>Give the gift of great taste</p>
+                </div> 
+            </div>
+            <div class="receipt_img_devider"></div>
+            <div class="receipt_extra_img">
+                 <div class="receipt_pic_flag">
+                    <h2>send</h2>
+                    <h3>Invite</h3>
+                </div>
+               <a href="/invite" target="_blank">  <img src="/static/img/girls_eating.jpg"></a> 
+                <div class="receipt_img_text">
+                    <p>Invite Your Friends</p>
+                </div>
+            </div>
+         </div>
+    </div>
+    <div class="receipt_help">
+            <h2>Need Help?</h2>
+            <p><b>Questions? Comments? New around here?</b></p>
+            <p>Our dedicated customer service Escoffiers are at your service! Find answers to <a href="/about#faq">FAQ</a> or send us a <a href="http://service.popuppantry.com"> note</a>.</p>
+            <br />
+            <p>Click : <a href="service.popuppantry.com">service.popuppantry.com</a></p>
+            <p>Call : 424-2-PANTRY</p>
+         </div>
+        
+
+  </div> <!-- .checkout -->
+
+  <!--   
+        <h4>{% trans 'Order #' %} {{ order.order_number }}</h4>
+        <h4>{% trans 'Status' %}</h4>
+        <h4>{% trans "Total" %}</h4>
+        {% if order.discount %}
+            {% trans "Discount" %} - {{order.discount|currency}}<br/>
+        {% endif %}
+        {% if order.is_shippable %} {% trans "Shipping" %} + {{order.shipping_sub_total|currency}}<br/> {% endif %}
+        {% if order.tax %}
+            {% trans "Tax" %} + {{order.tax|currency}}<br/>
+        {% endif %}
+        {% trans "Total" %} = {{order.total|currency}}<br/>
+
+        {% order_payment_summary order paylink %}
+
+ -->
+{% endblock %}
+
+
+

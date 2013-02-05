@@ -1,0 +1,32 @@
+{% extends "profiles/base.html" %}
+
+{# unstyled #}
+
+{% load i18n %}
+{% load uni_form_tags %}
+
+{% block title %}
+  {% blocktrans with tp_language_display=translate_profile.get_language_display user_full_name=request.user.get_full_name %}
+  Edit {{ tp_language_display }} language profile for {{ user_full_name }}
+  {% endblocktrans %}
+{% endblock title %}
+
+{% block pagetitle %}
+  {% blocktrans with tp_language_display=translate_profile.get_language_display user_full_name=request.user.get_full_name %}
+  Edit {{ tp_language_display }} language profile for {{ user_full_name }}
+  {% endblocktrans %}
+{% endblock pagetitle %}
+
+{% block content %}
+<div id="actions">
+    {% for language in language_list %}
+        {% if language.short != translate_profile.language and language.short != my_language %}
+            <a href="{% url profile_translation_edit language.short %}">{% blocktrans with language_long=language.long %} edit {{ language_long }} profile{% endblocktrans %}</a>
+        {% endif %}
+    {% endfor %}
+    <a href="{% url profile_edit %}">{% trans "Back to native language edit." %}</a>
+</div>
+
+{% uni_form form helper %}
+
+{% endblock content %}

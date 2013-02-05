@@ -1,0 +1,326 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+
+{% block content %}
+<h2>{% trans "Your Profile" %}</h2>
+
+<div class="box30 account-update">
+
+{% if form.non_field_errors %}
+{% trans "Please correct the following error:" %}
+{{ form.non_field_errors }}
+{% endif %}
+
+
+
+
+
+<form method="post" action="{% url satchmo_profile_update %}">{% csrf_token %}
+{{ form.next }}
+
+<h4>{% trans "Basic Information" %}</h4>
+<ul class="cleanlist">
+    <li><label for="id_email">{% trans "Email address" %}{% if form.email.field.required %}*{% endif %}</label> {{ form.email }}</li>
+    {% if form.email.errors %}<li class="error">&nbsp; *** {{ form.email.errors|join:", " }}</li>{% endif %}
+
+    <li><label for="id_first_name">{% trans "First name" %}{% if form.first_name.field.required %}*{% endif %}</label> {{ form.first_name }}</li>
+   {% if form.first_name.errors %}<li class="error">&nbsp; *** {{ form.first_name.errors|join:", " }}</li>{% endif %}
+
+    <li><label for="id_last_name">{% trans "Last name" %}{% if form.last_name.field.required %}*{% endif %}</label> {{ form.last_name }}</li>
+    {% if form.last_name.errors %}<li class="error">&nbsp; *** {{ form.last_name.errors|join:", " }}</li>{% endif %}
+
+    <li><label for="id_dob">{% trans "Birthday" %}{% if form.dob.field.required %}*{% endif %}</label> {{ form.dob }}</li>
+    {% if form.dob.errors %}<li class="error">&nbsp; *** {{ form.dob.errors|join:", " }}</li>{% endif %}
+
+    <li><label for="id_phone">{% trans "Phone number" %}{% if form.phone.field.required %}*{% endif %}</label>{{ form.phone }}</li>
+    {% if form.phone.errors %}&nbsp; *** {{ form.phone.errors|join:", " }}</li>{% endif %}
+
+    {% if show_newsletter %}
+    <li><label for="id_newsletter">{% trans "Newsletter" %}{% if form.newsletter.field.required %}*{% endif %}</label> {{ form.newsletter }}</li>
+    {% if form.newsletter.errors %}<li class="error">&nbsp; *** {{ form.newsletter.errors|join:", " }}</li>{% endif %}
+    {% else %}
+    <input type='hidden' name='newsletter' value="False" />
+    {% endif %}
+</ul>
+    <h4>{% trans "Billing Information" %}</h4>
+
+<ul class="cleanlist">
+
+    <li><label for="id_addressee">{% trans "Bill To" %}</label> {{ form.addressee }}</li>
+    {% if form.addressee.errors %}<li class="error">&nbsp; *** {{ form.addressee.errors|join:", "}}</li>{% endif %}
+
+    <li><label for="id_street1">{% trans "Street" %}{% if form.street1.field.required %}*{% endif %}</label> {{ form.street1 }}</li>
+    {% if form.street1.errors %}<li class="error">&nbsp; *** {{ form.street1.errors|join:", " }}</li>{% endif %}
+
+    <li><label for="id_street2">Apt or Suite</label> {{ form.street2 }}</li>
+    {% if form.street2.errors %}<li class="error">&nbsp; *** {{ form.street2.errors|join:", " }}</li>{% endif %}
+
+    <li><label for="id_city">{% trans "City" %}{% if form.city.field.required %}*{% endif %}</label> {{ form.city }}</li>
+    {% if form.city.errors %}<li class="error">&nbsp; *** {{ form.city.errors|join:", " }}</li>{% endif %}
+
+    {% if country %}
+      {% if form.fields.state.choices %}
+        <li><label for="id_state">{% if country.get_admin_area_display %}{{ country.get_admin_area_display }}{% else %}{% trans "State/Province" %}{% endif %} {% if form.state.field.required %}*{% endif %}</label>
+        <p id="id_state_loading" style="display: none">Loading...</p> {{ form.state }}</li>
+      {% endif %}
+    {% else %}
+        <li><label for="id_state">{% trans "State/Province" %} {% if form.state.field.required %}*{% endif %}</label></li>
+        <li><p id="id_state_loading" style="display: none">Loading...</p> {{ form.state }}</li>
+    {% endif %}
+    {% if form.state.errors %}<li class="error">*** {{ form.state.errors|join:", " }}</li>{% endif %}
+
+    <li><label for="id_postal_code">{% trans "Zipcode/Postcode" %}{% if form.postal_code.field.required %}*{% endif %}</label> {{ form.postal_code }}</li>
+    {% if form.postal_code.errors %}<li class="error">*** {{ form.postal_code.errors|join:", " }}</li>{% endif %}
+
+    {% if not country %}
+    <li><label for="id_country">{% trans "Country" %}</label> {{ form.country }}</li>
+    {% if form.country.errors %}<li class="error">*** {{ form.country.errors|join:", " }}</li>{% endif %}
+    {% endif %}
+
+
+</ul>
+<ul class="cleanlist">
+    {% for field in credit_form %}
+      {% if field.name != "shipping_date" %}
+          <li>{{field.label_tag}} {{field}}</li>
+        {% if field.errors %}
+          <li><span class="error">{{field.errors}}</span></li>
+      {% endif %}
+
+    {% endif %}
+    {% endfor %}
+
+</ul>
+   <h4>{% trans "Shipping Information" %}</h4>
+<ul class="cleanlist">
+    <li><label for="id_copy_address">{% trans "Shipping same as billing?" %}</label> {{ form.copy_address }}</li>
+    {% if form.copy_address.errors %}<li class="error">*** {{ form.copy_address.errors|join:", " }}</li>{% endif %}
+
+    <li style="height:50px;"><label for="id_ship_is_residential">{% trans "Is shipping address a residence?" %}</label> {{ form.ship_is_residential }}</li>
+    {% if form.ship_is_residential.errors %}<li class="error">*** {{ form.ship_is_residential.errors|join:", " }}</li>{% endif %}
+
+</ul>
+<ul class="cleanlist">
+    <li><label for="id_ship_addressee">{% trans "Ship To" %}</label> {{ form.ship_addressee }}</li>
+    {% if form.ship_addressee.errors %}<li class="error">*** {{ form.ship_addressee.errors|join:", "}}</li>{% endif %}
+
+    <li><label for="id_ship_street1">{% trans "Street" %} {% if form.ship_street1.field.required %}*{% endif %}</label> {{ form.ship_street1 }}</li>
+    {% if form.ship_street1.errors %}<li class="error">*** {{ form.ship_street1.errors|join:", " }}</li>{% endif %}
+
+    <li><label for="id_ship_street2">Apt or Suite {% if form.ship_street2.field.required %}*{%endif%}</label> {{ form.ship_street2 }}</li>
+    {% if form.ship_street2.errors %}<li class="error">*** {{ form.ship_street2.errors|join:", " }}</li>{% endif %}
+
+    <li><label for="id_ship_city">{% trans "City" %} {% if form.ship_city.field.required %}*{% endif %}</label> {{ form.ship_city }}</li>
+    {% if form.ship_city.errors %}<li class="error">*** {{ form.ship_city.errors|join:", " }}</li>{% endif %}
+
+    {% if country %}
+      {% if form.fields.ship_state.choices %}
+         <li><label for="id_ship_state">{% if country.get_admin_area_display %}{{ country.get_admin_area_display }}{% else %}{% trans "State/Province" %}{% endif %} {% if form.ship_state.field.required %}*{% endif %}</label> {{ form.ship_state }}
+            <p id="id_ship_state_loading" style="display: none">Loading...</p></li>
+      {% endif %}
+    {% else %}
+        <li><label for="id_ship_state">{% trans "State/Province" %} {% if form.ship_state.field.required %}*{% endif %}</label>{{ form.ship_state }}
+            <p id="id_ship_state_loading" style="display: none">Loading...</p></li>
+    {% endif %}
+    {% if form.ship_state.errors %}<li class="error">*** {{ form.ship_state.errors|join:", " }}</li>{% endif %}
+
+    <li><label for="id_ship_postal_code">{% trans "Zipcode/Postcode" %} {% if form.ship_postal_code.field.required %}*{% endif %}</label>{{ form.ship_postal_code }}</li>
+    {% if form.ship_postal_code.errors %}<li class="error">*** {{ form.ship_postal_code.errors|join:", " }}</li>{% endif %}
+
+    {% if not country %}
+    <li><label for="id_ship_country">{% trans "Country" %} {% if form.ship_country.field.required %}*{% endif %}</label> {{ form.ship_country }}</li>
+    {% if form.ship_country.errors %}<li class="error">*** {{ form.ship_country.errors|join:", " }}</li>{% endif %}
+    {% endif %}
+    {% if contact.cim_id %}
+            <ul class="cleanlist">
+                {% for field in credit_form %}
+                    {% if field.html_name != "shipping_date" %}
+                    <li class="{{ field.html_name }}{% if field.errors %} error
+                    {% endif %}">
+                        {{ field.label_tag }} {{ field }}
+                        {% for error in field.errors %}
+                            <div class="error-message">{{ error }}</div>
+                        {% endfor %}
+                    </li>
+                    {% endif %}
+                {% endfor %}
+                </ul>
+
+    {% endif %}
+</ul>
+ <input type="submit" class="orange_button" id="settings_update_apply" value="{% trans "Update Account" %}"/>
+</form>
+
+
+
+
+
+<!-- <form method="post" action="{% url satchmo_profile_update %}">{% csrf_token %}
+{{ form.next }}
+
+<table>
+
+
+	<tr><td colspan="2"><h4>{% trans "Basic Information" %}</h4></td></tr>
+    <tr><td><label for="id_email">{% trans "Email address" %}{% if form.email.field.required %}*{% endif %}</label></td> <td>{{ form.email }}</td></tr>
+    {% if form.email.errors %}<tr><td>&nbsp;</td><td>*** {{ form.email.errors|join:", " }}</td></tr>{% endif %}
+
+    <tr><td><label for="id_first_name">{% trans "First name" %}{% if form.first_name.field.required %}*{% endif %}</label></td><td> {{ form.first_name }}</td></tr>
+   {% if form.first_name.errors %}<tr><td>&nbsp;</td><td>*** {{ form.first_name.errors|join:", " }}</td></tr>{% endif %}
+
+    <tr><td><label for="id_last_name">{% trans "Last name" %}{% if form.last_name.field.required %}*{% endif %}</label></td><td> {{ form.last_name }}</td></tr>
+    {% if form.last_name.errors %}<tr><td>&nbsp;</td><td>*** {{ form.last_name.errors|join:", " }}</td></tr>{% endif %}
+
+    <tr><td><label for="id_dob">{% trans "Birthday" %}{% if form.dob.field.required %}*{% endif %}</label></td><td> {{ form.dob }}</td></tr>
+    {% if form.dob.errors %}<tr><td>&nbsp;</td><td>*** {{ form.dob.errors|join:", " }}</td></tr>{% endif %}
+
+    <tr><td><label for="id_phone">{% trans "Phone number" %}{% if form.phone.field.required %}*{% endif %}</label></td><td> {{ form.phone }}</td></tr>
+    {% if form.phone.errors %}<tr><td>&nbsp;</td><td>*** {{ form.phone.errors|join:", " }}</td></tr>{% endif %}
+
+    {% if show_newsletter %}
+    <tr><td><label for="id_newsletter">{% trans "Newsletter" %}{% if form.newsletter.field.required %}*{% endif %}</label></td><td> {{ form.newsletter }}</td></tr>
+    {% if form.newsletter.errors %}<tr><td>&nbsp;</td><td>*** {{ form.newsletter.errors|join:", " }}</td></tr>{% endif %}
+    {% else %}
+    <input type='hidden' name='newsletter' value="False" />
+    {% endif %}
+
+    <tr><td colspan="2"><h4>{% trans "Billing Information" %}</h4></td></tr>
+
+    {% for field in credit_form %}
+      {% if field.name != "shipping_date" %}
+        <tr>
+          <td>
+            {{field.label_tag}}:
+          </td>
+          <td>
+            {{field}}
+          </td>
+
+        </tr>
+        {% if field.errors %}
+          <tr>
+            <td></td><td><span class="error">{{field.errors}}</span></td>
+          </tr>
+      {% endif %}
+
+    {% endif %}
+    {% endfor %}
+
+
+
+
+
+
+
+    <tr><td><label for="id_addressee">{% trans "Bill To" %}</label><td> {{ form.addressee }}</td></tr>
+    {% if form.addressee.errors %}<tr><td class="error" colspan="2">*** {{ form.addressee.errors|join:", "}}</td></tr>{% endif %}
+
+    <tr><td><label for="id_street1">{% trans "Street" %}{% if form.street1.field.required %}*{% endif %}</label></td><td> {{ form.street1 }}</td></tr>
+    {% if form.street1.errors %}<tr><td class="error" colspan="2">*** {{ form.street1.errors|join:", " }}</td></tr>{% endif %}
+
+    <tr><td><label for="id_street2">Apt or Suite</label></td><td> {{ form.street2 }}</td></tr>
+    {% if form.street2.errors %}<tr><td class="error" colspan="2">*** {{ form.street2.errors|join:", " }}</td></tr>{% endif %}
+
+    <tr><td><label for="id_city">{% trans "City" %}{% if form.city.field.required %}*{% endif %}</label></td><td> {{ form.city }}</td></tr>
+    {% if form.city.errors %}<tr><td class="error" colspan="2">*** {{ form.city.errors|join:", " }}</td></tr>{% endif %}
+
+    {% if country %}
+      {% if form.fields.state.choices %}
+      <tr>
+        <td><label for="id_state">{% if country.get_admin_area_display %}{{ country.get_admin_area_display }}{% else %}{% trans "State/Province" %}{% endif %} {% if form.state.field.required %}*{% endif %}</label></td>
+        <td><p id="id_state_loading" style="display: none">Loading...</p> {{ form.state }}</td>
+      </tr>
+      {% endif %}
+    {% else %}
+      <tr>
+        <td><label for="id_state">{% trans "State/Province" %} {% if form.state.field.required %}*{% endif %}</label></td>
+        <td><p id="id_state_loading" style="display: none">Loading...</p> {{ form.state }}</td>
+      </tr>
+    {% endif %}
+    {% if form.state.errors %}<tr><td class="error" colspan="2">*** {{ form.state.errors|join:", " }}</td></tr>{% endif %}
+
+    <tr><td><label for="id_postal_code">{% trans "Zipcode/Postcode" %}{% if form.postal_code.field.required %}*{% endif %}</label></td><td> {{ form.postal_code }}</td></tr>
+    {% if form.postal_code.errors %}<tr><td class="error" colspan="2">*** {{ form.postal_code.errors|join:", " }}</td></tr>{% endif %}
+
+    {% if not country %}
+    <tr><td><label for="id_country">{% trans "Country" %}</label></td><td> {{ form.country }}</td></tr>
+    {% if form.country.errors %}<tr><td class="error" colspan="2">*** {{ form.country.errors|join:", " }}</td></tr>{% endif %}
+    {% endif %}
+
+
+
+
+
+
+    
+    
+    </tr>
+
+    <tr><td colspan="2"><h4>{% trans "Shipping Information" %}</h4></td></tr>
+
+    <tr><td><label for="id_copy_address">{% trans "Shipping same as billing?" %}</label></td><td> {{ form.copy_address }}</td></tr>
+    {% if form.copy_address.errors %}<tr><td class="error" colspan="2">*** {{ form.copy_address.errors|join:", " }}</td></tr>{% endif %}
+
+    <tr><td width="270"><label for="id_ship_is_residential">{% trans "Is shipping address a residence?" %}</label></td><td> {{ form.ship_is_residential }}</td></tr>
+    {% if form.ship_is_residential.errors %}<tr><td class="error" colspan="2">*** {{ form.ship_is_residential.errors|join:", " }}</td></tr>{% endif %}
+
+  </table>
+
+  <table>
+    <tr class="shiprow"><td><label for="id_ship_addressee">{% trans "Ship To" %}</label></td><td> {{ form.ship_addressee }}</td></tr>
+    {% if form.ship_addressee.errors %}<tr><td class="error" colspan="2">*** {{ form.ship_addressee.errors|join:", "}}</td></tr>{% endif %}
+
+    <tr class="shiprow"><td><label for="id_ship_street1">{% trans "Street" %} {% if form.ship_street1.field.required %}*{% endif %}</label></td><td> {{ form.ship_street1 }}</td></tr>
+    {% if form.ship_street1.errors %}<tr><td class="error" colspan="2">*** {{ form.ship_street1.errors|join:", " }}</td></tr>{% endif %}
+
+    <tr class="shiprow"><td><label for="id_ship_street2">Apt or Suite {% if form.ship_street2.field.required %}*{%endif%}</label></td><td> {{ form.ship_street2 }}</td></tr>
+    {% if form.ship_street2.errors %}<tr><td class="error" colspan="2">*** {{ form.ship_street2.errors|join:", " }}</td></tr>{% endif %}
+
+    <tr class="shiprow"><td><label for="id_ship_city">{% trans "City" %} {% if form.ship_city.field.required %}*{% endif %}</label></td><td> {{ form.ship_city }}</td></tr>
+    {% if form.ship_city.errors %}<tr><td class="error" colspan="2">*** {{ form.ship_city.errors|join:", " }}</td></tr>{% endif %}
+
+    {% if country %}
+      {% if form.fields.ship_state.choices %}
+       <tr class="shiprow">
+         <td><label for="id_ship_state">{% if country.get_admin_area_display %}{{ country.get_admin_area_display }}{% else %}{% trans "State/Province" %}{% endif %} {% if form.ship_state.field.required %}*{% endif %}</label></td>
+         <td><p id="id_ship_state_loading" style="display: none">Loading...</p> {{ form.ship_state }}</td>
+       </tr>
+      {% endif %}
+    {% else %}
+      <tr class="shiprow">
+        <td><label for="id_ship_state">{% trans "State/Province" %} {% if form.ship_state.field.required %}*{% endif %}</label></td>
+        <td><p id="id_ship_state_loading" style="display: none">Loading...</p> {{ form.ship_state }}</td>
+      </tr>
+    {% endif %}
+    {% if form.ship_state.errors %}<tr><td class="error" colspan="2">*** {{ form.ship_state.errors|join:", " }}</td></tr>{% endif %}
+
+    <tr class="shiprow"><td><label for="id_ship_postal_code">{% trans "Zipcode/Postcode" %} {% if form.ship_postal_code.field.required %}*{% endif %}</label></td><td>{{ form.ship_postal_code }}</td></tr>
+    {% if form.ship_postal_code.errors %}<tr><td class="error" colspan="2">*** {{ form.ship_postal_code.errors|join:", " }}</td></tr>{% endif %}
+
+    {% if not country %}
+    <tr class="shiprow"><td><label for="id_ship_country">{% trans "Country" %} {% if form.ship_country.field.required %}*{% endif %}</label></td><td> {{ form.ship_country }}</td></tr>
+    {% if form.ship_country.errors %}<tr><td class="error" colspan="2">*** {{ form.ship_country.errors|join:", " }}</td></tr>{% endif %}
+    {% endif %}
+    {% if contact.cim_id %}
+            <ul>
+                {% for field in credit_form %}
+                    {% if field.html_name != "shipping_date" %}
+                    <li class="{{ field.html_name }}{% if field.errors %} error
+                    {% endif %}">
+                        {{ field.label_tag }} {{ field }}
+                        {% for error in field.errors %}
+                            <div class="error-message">{{ error }}</div>
+                        {% endfor %}
+                    </li>
+                    {% endif %}
+                {% endfor %}
+                </ul>
+
+    {% endif %}
+	<tr><td width="270"></td><td><br/><input type="submit" class="button" value="{% trans "Update" %}"/></td></tr>
+</table>
+</form> -->
+
+</div>
+{% endblock %}

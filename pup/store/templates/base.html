@@ -1,0 +1,504 @@
+{% load satchmo_google satchmo_util satchmo_currency satchmo_discounts normalize_decimal crazy_egg kiss_metrics google_analytics optimizely %}
+{% load url from future %}
+
+<!doctype html>
+
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name ="viewport" content="initial-scale=1.0">
+
+  <title>{% block title %}Pop-Up Pantry{% endblock title %}</title>
+  <meta name="description" content="{% block description %}Dinners by top chefs, delivered to your door for less than takeout. Enjoy our gourmet offerings for one flat fee. Sign up for free today!{% endblock description %}">
+  <meta name="author" content="Pop-Up Pantry">
+
+        {% google_analytics %}
+
+  <link href='//fonts.googleapis.com/css?family=La+Belle+Aurore' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <link rel="image_src" href="/static/img/seal150x150.jpg" />
+  <meta property="fb:app_id" content="387251307970706" />
+  {% block extra_head %}{% endblock %}
+
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <!--[if IE 7]>  
+				<link rel="stylesheet" href="/static/css/ie7.css"> 
+				<html class="no-js ie7 oldie" lang="en"> 
+				<script src="/static/js/html5shiv.js"></script> 
+	<![endif]-->
+    <!--[if IE 8]>  
+				<link rel="stylesheet" href="/static/css/ie8.css">
+				<html class="no-js ie8 oldie" lang="en"> 
+				<script src="/static/js/html5shiv.js"></script>
+	<![endif]-->
+    <!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
+
+    </head>
+
+    <body class="{% block body_class %}{% endblock %}">
+
+      <!--[if lt IE 9]> <div id="upgrade_browser"><p>Trouble viewing this site? <a href="http://windows.microsoft.com/en-US/windows-vista/Update-Internet-Explorer" target="_blank"> Click here</a></p><div id="close_upgrade_browser">X</div></div> <![endif]-->
+
+      <div id="fb-root"></div>
+      <div id="mask"></div>
+
+      {% block body %}
+
+      {% block overlay %}
+      {% if not user.is_authenticated %}
+      <div id="overlay" class="prompt clearfix">
+
+        <div class="header">
+          <h1>Sign-Up</h1>
+          <div class="user-link">Already a member? <a href="/login/?next={{request.path}}">Sign In</a></div>
+          <a href="#" class="close">X</a>
+        </div> <!-- .header -->
+
+        {% if signup_text %}
+        <div class="signup_text">
+          <p>
+          {{ signup_text|safe }}
+          </p>
+
+          {% if user_id %}
+          <p><a href="/quiz/?id={{user_id}}">Take the food quiz!</a></p>
+          {% endif %}
+        </div> <!-- .signup_text -->
+
+        {% else %}
+
+        <div class="form-wrapper">
+          <!-- <div class="or"></div> -->
+          <div class="sign-up">
+            <h3>Create a free account</h3>
+            <form method="post" action="." class="beta-register">
+              {% csrf_token %}
+
+              <ul>
+                {% for field in beta_form %}
+                <li class="{{ field.html_name }}">
+                  {% if field.html_name != "username" and field.html_name != "quiz" and field.html_name != "group" %}
+                  {% comment %} {{ field.label_tag }} {% endcomment %}
+                  {% comment %} {{ field }} {% endcomment %}
+                  {{field.errors}}
+                  <input type="{% if field.html_name == "password1" or field.html_name == "password2" %}password{% else %}text{% endif %}" name="{{ field.html_name }}" placeholder="{{ field.label }}"{% if field.errors%} class="error"{% endif %} id="id_{{field.html_name}}" />
+
+
+                  {% endif %}
+                </li>
+                {% endfor %}
+                <li><p class="invitation_code_click">Have an Invitation Code?</p></li>
+              </ul>
+
+              {% if invitation_key %}
+              <input type="hidden" name="invitation_key" value="{{invitation_key}}" />
+              {% endif %}
+
+
+              <input name="ajax" value="True" type="hidden" />
+              <input type="submit" class="orange_button sign_up_button" id="sign_up_button_modal" value="free sign up" />
+
+            </form>
+
+          {% if invitation_code %} <div class="invitation_code_available" data-invite-code="{{invitation_code}}"></div>{% endif %}
+          </div> <!-- .sign-up -->
+          <div class="fb">
+            <div class="or2">OR</div>
+            <div class="facebook_login">
+              <a href="/facebook/login/"><img src="/static/img/btn-fb-signin.png" alt="Sign in with Facebook" /></a>
+            </div>
+
+            {% comment %}
+            <form method="post" action="/accounts/facebookregister/" class="fb-register">
+              <input name="ajax" value="True" type="hidden" />
+              {% csrf_token %}
+
+              <ul>
+                {% for field in facebook_beta_form %}
+                <li  class="{{ field.html_name }}">{{field.errors}} <input type="text"  name="{{ field.html_name }}" placeholder="{{ field.label }}"{% if field.errors%} class="error"{% endif %} id="id_{{field.html_name}}"  /></li>
+                {% endfor %}
+
+              </ul>
+
+              <img src="/static/img/btn-fb-signin.png" class="submit" />
+            </form>
+            {% endcomment %}
+
+          </div> <!-- .fb -->
+
+        </div> <!-- .form-wrapper -->
+
+        {% endif %}
+
+      </div> <!-- #overlay.prompt -->
+      {% endif %}{# not user.is_authenticated #}
+
+      {% endblock overlay %}
+
+      <div id="container">
+        {% block container %}
+
+        {% block header %}
+        {% if not on_checkout %}
+        <header>
+          <div class="content">
+
+            <h1 class="logo">{% if user.is_authenticated %}<a href="/">Pop-Up Pantry</a>{% else %}<a href="/home">Pop-Up Pantry</a>{% endif %} </h1>
+
+            <nav>
+              <ul {% if user.is_authenticated %} class="ribbon-short" {% else %} class="ribbon-base" {% endif %}>
+                <div class="ribbon-leftside">&nbsp;</div><!-- :TODO: 'div' inside 'ul' tag might be illegal -->
+                {% if not user.is_authenticated %}
+                  <li class="ribbon-stitch1"><a href="/how-it-works/" class="h-line">How It Works</a></li>
+                {% else %}
+                  <li class="ribbon-stitch1"><a href="/history/" class="h-line">Order History</a></li>
+                {% endif %}
+                {% if not user.is_authenticated %}
+                  <li class="ribbon-stitch2"><a href="/about/">About us</a></li>
+                {% else %}
+                  <li class="ribbon-stitch2"><a class="h-line" href="/product/gifting/">Gift Cards</a></li>
+                {% endif %}
+                {% if user.is_authenticated %}
+                <li><a class="h-line" href="/plans/">Pricing</a></li>
+                {% endif %}
+
+                {% if not user.is_authenticated %}
+                <ul class="ribbon-top"><!-- 'ul' tag, directly under 'ul' tag might not be legal -->
+                  <li class="sign-in ribbon-stitch1">
+                    <a class="h-line">Sign-In</a>
+                    <div class="login">
+                      <form action="/accounts/login/" method="post">
+                        {% csrf_token %}
+                        <input type="text" name="username" class="email" placeholder="Email" />
+                        <input type="password" name="password" class="password" placeholder="Password" />
+                        <input type="submit" class="orange_button_small sign_in_button" style="float:right;" value="Sign In" />
+
+                        <div class="forgot-password"><a href="/accounts/password_reset/">Forgot password?</a></div>
+                        <div class="or">OR</div>
+
+                        <span class="FB"><a href="/facebook/login/"><img src="/static/img/btn-fb-signin.png" /></a></span>
+
+                      </form>
+                    </div> <!-- .login -->
+                  </li>
+                  <li class="sign-up ribbon-stitch2"><a class="register-modal">Sign-Up</a></li>
+                </ul><!-- .ribbon-top -->
+                {% else %}
+
+                <li><a href="/">Menus</a></li>
+                {% endif %}{# not user.is_authenticated #}
+              </ul><!-- .ribbon-short|.ribbon-base -->
+            </nav>
+
+            {% if user.is_authenticated %}
+            <div class="user">
+              <strong>Welcome {{ request.user.first_name }}</strong>
+              <div class="menu">
+
+                <a href="/accounts/">Account Settings</a><br />
+                <a href="/invite/">Invite Friends</a><br />
+                <a href="/accounts/logout/">Log Out</a>
+              </div>
+            </div> <!-- .user -->
+
+
+            {% if messages %}
+            <div class="notifications">
+              <div class="my-notifications">
+
+                <strong>Notifications</strong>
+                <span class="count">{{ messages|length }}</span>
+
+              </div>
+              <div class="list">
+                <h3><a href="/messages" >Notifications</a></h3>
+                <div class="remove-notifications" >X</div>
+
+                <ul>
+                  {% for message in messages %}
+                  <li>
+                    {% if message.img %}
+                    <img class="framed" src="/static/img/{{ message.img }}" alt="" />
+                    {% else %}
+                    <img src="/static/img/sidewalk-sign.png" width="66" height="55" alt="" />
+                    {% endif %}
+
+                    <div class="desc">
+                      <h4><a href="/messages/#message-{{ message.pk }}">{{ message.subject|safe }}</a></h4>
+                      <p>{{ message.message|safe }}</p>
+                      <p class="time">{{ message.created|timesince }} ago</p>
+                    </div>
+                  </li>
+                  {% endfor %}
+                </ul>
+
+                <a href="/messages/" class="more">See All Notifications</a>
+              </div> <!-- .list -->
+            </div> <!-- .notifications -->
+            {% endif %}{# messages #}
+
+
+
+            <div class="pantry{% if request.path_info == '/checkout/' %} hidden{% endif %}">
+              <div class="my-pantry">
+                <!-- <a href="/checkout/"> -->
+                <strong>My Pantry</strong>
+                (<span class="cart-num">{% if cart %}{{ cart.numItems|floatformat }}{% else %}0{% endif %}</span>)
+                <!--  </a> -->
+              </div><!-- .my-pantry -->
+              <div class="user-shopping-cart">
+                <div class="emptycart"><p>Your pantry is empty</p></div>
+                <form action="/cart/qty/" method="post" id="user-cart" class="shopping-cart {% if cart %}{{cart.id}}{% endif %}">
+                  <h3>My Pantry</h3>
+                  <div class="shopping-cart-close"><h2>X</h2></div>
+
+                  <ul>
+
+                    {% for cartitem in cart %}
+                    <li class="{{ cartitem.id }}"> {# cartitem #}
+                      <div class="shopping-cart-thumb-image">
+                        <img src="{{ cartitem.product.thumb_image }}" />
+                      </div><!-- .shopping-cart-thumb-image -->
+                      <div class="shopping-cart-description">
+                        <div class="desc">
+                          <h4><a href="/product/{{cartitem.product.slug}}/">{{ cartitem.description }}</a></h4>
+                        </div><!-- .desc -->
+                        <div class="shopping-cart-slug" style="display:none">
+                          {{ cartitem.product.slug }}
+                        </div>
+                        <div class="remove {{ cartitem.id }}">
+                          <h5>REMOVE</h5>
+                        </div>
+                      </div><!-- .shopping-cart-description -->
+                      <div class="quantity-box">
+                        {% if not cartitem.product.is_gift %}
+                         <input type="text" class="quantity" name="cartitem_{{ cartitem.id }}" value="{{ cartitem.quantity|normalize_decimal }}" />
+                        {% else %}
+                         <input type="text" class="quantity gift_quantity" name="cartitem_{{ cartitem.id }}" value="{{ cartitem.quantity|normalize_decimal }}" />
+                        {% endif %}
+                        {% comment %} <input type="text" name="quantity" class="quantity" value="{{ cartitem.quantity|normalize_decimal }}" /> {% endcomment %}
+                      </div><!-- .quantity-box -->
+                    </li><!-- .{{ cartitem.id }} -->
+                    {% endfor %}
+
+                  </ul>
+
+                  <div class="csrf">{{ csrf_token }}</div>
+
+                  <button type="submit" name="continue_shopping" value="1" class="continue">Continue Shopping</button>
+                  <button type="submit" name="checkout" value="1" class="orange_button_tiny checkout_button shopping-cart-check-out-button">Checkout</button>
+
+                  <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}" />
+                  <input type="hidden" name="cart" value="{{cart.id}}">
+
+                </form>
+              </div> <!-- .user-shopping-cart -->
+
+              {% if cart|length > 0 %}
+              <span class="checkout" style="display:none">| <a href="/checkout">Checkout</a></span>
+              {% endif %}
+
+            </div> <!-- .pantry -->
+
+            {% endif %}{# user.is_authenticated #}
+
+            <div class="fb">
+              {# FB widget goes here #}
+            </div>
+
+          </div> <!-- .content -->
+        </header>
+        {% endif %}{# not on_checkout #}
+        {% endblock header %}
+
+        {% block main %}
+        <div id="main" class="content" role="main">
+          {% block content %}{% endblock %}
+        </div> <!-- #main.content -->
+        {% endblock %}
+
+        {% block footer %}
+        <footer>
+          <div class="content">
+
+            <div class="links">
+              <h3>Links</h3>
+              <ul>
+
+                <li><a href="/">{% if user.is_authenticated %}Menus{% else %}Home{% endif%}</a></li>
+                {% if not user.is_authenticated %}
+                <li><a class="sign-up-modal">Sign Up</a></li>
+                <li><a href="/login/">Sign In</a></li>
+                {% endif %}
+                {% if user.is_authenticated %}
+                <li><a href="/plans/">Pricing</a></li>
+                {% endif %}
+                <li><a href="http://service.popuppantry.com">Customer Service</a></li>
+              </ul>
+              <ul>
+                <li><a href="/about/">About Us</a></li>
+                <li><a href="/how-it-works/">How It Works</a></li>
+                <li><a href="/terms/">Terms Of Use</a></li>
+                <li><a href="/privacy/">Privacy Policy</a></li>
+              </ul>
+            </div> <!-- .links -->
+
+            <div class="contact">
+              <h3>Contact Us</h3>
+              <ul>
+                <li class="facebook">
+                  <a href="http://www.facebook.com/popuppantry" target="_blank">Pop-Up Pantry on Facebook</a>
+                </li>
+                <li class="twitter">
+                  <a href="http://www.twitter.com/popuppantry" target="_blank">Pop-Up Pantry on Twitter</a>
+                </li>
+                <li class="pinterest">
+                  <a href="http://www.pinterest.com/popuppantry" target="_blank">Pop-Up Pantry on Pinterest</a>
+                </li>
+
+              </ul>
+              <strong>Phone:</strong> 424-2-PANTRY<br/>
+              <strong>Email:</strong> <a href="mailto:service@popuppantry.com">service@popuppantry.com</a>
+            </div> <!-- .contact -->
+
+            <div class="about">
+              <h3>About Us</h3>
+              <p>Pop-Up Pantry offers chef-curated meals tailored to your personal Taste Profile preferences. Pop-Up Pantry is dining, delivered.</p>
+              <p><a href="/about/">Find out more about us »</a></p>
+
+            </div> <!-- .about -->
+
+            <div class="copyright">
+              <div class="fb-like" data-href="http://facebook.com/popuppantry" data-send="true" data-layout="button_count" data-width="450" data-show-faces="true" data-font="lucida grande"></div>
+              <p>Copyright 2012 Pop-Up Pantry. All Rights Reserved.</p>
+            </div> <!-- .copyright -->
+
+          </div> <!-- .content -->
+        </footer>
+        {% endblock footer %}
+
+        {% endblock container %}
+      </div> <!-- #container -->
+
+      {% endblock body %}
+      <script src="/static/js/libs/modernizr-2.0.6.min.js"></script>
+
+      
+      <script src="/static/js/jquery.placeholder.min.js"></script>
+      <script src="/static/js/jquery.modal.js"></script>
+      <script src="/static/js/jquery.wizard.js"></script>
+      <script src="/static/js/jquery.styled-radiobutton.js"></script>
+    <script src="/static/js/jquery.cookie.js"></script>
+    <script src="/static/js/pup.js"></script>
+
+
+    <!--[if lt IE 9]>
+    <script>
+        $('#close_upgrade_browser').click(function(){
+          $('#upgrade_browser').fadeOut();
+        });
+    </script>
+  <![endif]-->
+
+    {% block extra_js %}{% endblock extra_js %}
+
+    {% google_analytics %}
+    {% kiss_metrics %}
+    {% optimizely %}
+    {% crazy_egg %}
+
+
+    <script>
+      window.fbAsyncInit = function() {
+        FB.init({
+          appId      : '387251307970706',
+          channelUrl : '//popuppantry.com/static/facebook/channel.html', // Channel File
+          status     : true, // check login status
+          cookie     : true, // enable cookies to allow the server to access the session
+          xfbml      : true,  // parse XFBML
+          frictionlessRequests: true
+        });
+      };
+
+      (function(d){
+        var js, id = 'facebook-jssdk', ref = d.getElementsByTagName('script')[0];
+        if (d.getElementById(id)) {return;}
+        js = d.createElement('script'); js.id = id; js.async = true;
+        js.src = "//connect.facebook.net/en_US/all.js";
+        ref.parentNode.insertBefore(js, ref);
+      }(document));
+
+      {% if contact  %}
+      if (typeof _kmq != 'undefined') {
+      _kmq.push(['set',{'Current Tier':'{{contact.current_tier|safe}}'}]);
+      }
+      {% endif %}
+
+    var _qevents = _qevents || [];
+
+    (function() {
+    var elem = document.createElement('script');
+    elem.src = (document.location.protocol == "https:" ? "https://secure" : "http://edge") + ".quantserve.com/quant.js";
+    elem.async = true;
+    elem.type = "text/javascript";
+    var scpt = document.getElementsByTagName('script')[0];
+    scpt.parentNode.insertBefore(elem, scpt);
+    })();
+
+
+    </script>
+
+
+    <!--[if lt IE 7 ]>
+    <script src="//ajax.googleapis.com/ajax/libs/chrome-frame/1.0.3/CFInstall.min.js"></script>
+    <script>window.attachEvent('onload',function(){CFInstall.check({mode:'overlay'})})</script>
+    <![endif]-->
+
+<!-- Google Code for Remarketing tag -->
+<!-- Remarketing tags may not be associated with personally identifiable information or placed on pages related to sensitive categories. For instructions on adding this tag and more information on the above requirements, read the setup guide: google.com/ads/remarketingsetup -->
+<script type="text/javascript">
+/* <![CDATA[ */
+var google_conversion_id = 1022663242;
+var google_conversion_label = "vsAeCJbu8wMQyrTS5wM";
+var google_custom_params = window.google_tag_params;
+var google_remarketing_only = true;
+/* ]]> */
+</script>
+<script type="text/javascript" src="//www.googleadservices.com/pagead/conversion.js">
+</script>
+<noscript>
+<div style="display:inline;">
+<img height="1" width="1" style="border-style:none;" alt="" src="//googleads.g.doubleclick.net/pagead/viewthroughconversion/1022663242/?value=0&amp;label=vsAeCJbu8wMQyrTS5wM&amp;guid=ON&amp;script=0"/>
+</div>
+</noscript>
+
+    <script type="text/javascript" src="//assets.pinterest.com/js/pinit.js"></script>
+
+<script type="text/javascript">
+adroll_adv_id = "EPB4QA7AFRHDTMBU6DOCKC";
+adroll_pix_id = "4XEWUGRDNJAXVJMZFPVZBH";
+(function () {
+var oldonload = window.onload;
+window.onload = function(){
+   __adroll_loaded=true;
+   var scr = document.createElement("script");
+   var host = (("https:" == document.location.protocol) ? "https://s.adroll.com" : "http://a.adroll.com");
+   scr.setAttribute('async', 'true');
+   scr.type = "text/javascript";
+   scr.src = host + "/j/roundtrip.js";
+   ((document.getElementsByTagName('head') || [null])[0] ||
+    document.getElementsByTagName('script')[0].parentNode).appendChild(scr);
+   if(oldonload){oldonload()}};
+}());
+    </script>
+
+
+    <script>
+      if (window.location.host == '127.0.0.1:8000') {
+         document.write('<script src="http://' + (location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1"></' + 'script>')
+      }
+    </script>
+
+</body>
+</html>

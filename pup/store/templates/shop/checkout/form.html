@@ -1,0 +1,1047 @@
+{% extends "base_chromeless.html" %}
+{% load i18n %}
+{% load satchmo_cart %}
+{% load satchmo_currency %}
+{% load satchmo_util %}
+{% load satchmo_product %}
+{% load satchmo_discounts %}
+{% load normalize_decimal %}
+
+{% block title %}
+    Checkout | Pop-Up Pantry
+{% endblock title %}
+
+
+{% block extra_head %}
+  <link rel="stylesheet" href="/static/css/kalendae.css">
+
+  <script type="text/javascript">
+    if (typeof _kmq != 'undefined') {
+      _kmq.push(['record', 'started purchase']);
+    }
+  </script>
+
+{% endblock extra_head %}
+
+{% block container %}
+<div class="checkout_wrap">
+  {{ block.super }}
+</div> <!-- .checkout_wrap -->
+{% endblock %}
+
+{% block header %}
+<div class="checkout_inner_wrap">
+  {{ block.super }}
+</div> <!-- .checkout_inner_wrap -->
+{% endblock %}
+
+{% block main %}
+<div class="checkout_inner_wrap">
+  {{ block.super }}
+</div> <!-- .checkout_inner_wrap -->
+{% endblock %}
+
+
+
+{% block content %}
+<div class="csrf">{{ csrf_token }}</div>
+
+<form id="checkout-form" method="post" action="{% url satchmo_checkout-step1 %}">
+  {% csrf_token %}
+   {% if cart.gift_only %}<div id="only_gifts" style="display:none"></div>{% endif %}
+  <div class="checkout clearfix">
+    <div id="checkout_page" style="display:none"></div>
+    <div class="checkout_top">
+      <h2>CHECKOUT</h2>
+      <p class="mustfill">FIELDS MARKED WITH A * ARE REQUIRED.</p>
+      <hr class="extrahr" />
+    </div> <!-- .checkout_top -->
+    <div class="order">
+
+      {% for message in checkout_messages %}
+      <div class="cart-messages clearfix">
+        <div class="cart-message clearfix">
+        {% for key, value in message.items %}
+
+        {% if key == 'alert_message' %}
+        <div class="cart-messages-left">
+          {{value|safe}}
+        </div> <!-- .cart-messages-left -->
+        {% endif %}
+
+        {% if key == 'alert_link' %}
+        <div class="cart-messages-right">
+          <a class="{% if 'alert_post' in message.keys %}  post-plan-change{% endif %} orange_button" id="checkout_continue" href="{{value}}">
+            <div class="med_button_arrow">
+              {{message.alert_link_text}}
+            </div>
+          </a>
+        </div> <!-- .cart-messages-right -->
+        {% else %}
+
+        <div class="cart-messages clearfix" style="display:none;">
+          <div class="cart-message clearfix"> </div>
+        </div> <!-- .cart-messages -->
+
+        {% endif %}
+
+        {% endfor %}
+
+
+        </div> <!-- .cart-message -->
+      </div> <!-- .cart-messages -->
+      {% endfor %}
+
+      {% if error_message %}
+      <div class="error">{{ error_message }}</div>
+      {% endif %}
+
+      {% if errors %}
+      <div class="error">
+        {{errors|safe}}
+      </div>
+      <script type="text/javascript">
+        if (typeof _kmq != 'undefined') {
+          _kmq.push(['record', 'Checkout Error', {'errors': '{{errors|escapejs}}'}]);
+        }
+      </script>
+      {% endif %}
+
+      {% if not cart|length %}
+      <h3>Your cart is empty</h4>
+      {% else %}
+
+
+      <div class="shopping-cart {{cart.id}}">
+        <table class="section">
+          <tr class="linebottom">
+            <th>MENU</th>
+            <th></th>
+            <th>QTY&nbsp;</th>
+            <th>COST</th>
+            <th>TOTAL</th>
+          </tr>
+
+          {% for cartitem in cart %}
+          <tr class="{{ cartitem.id }}">
+            <td><img src="{{ cartitem.product.entree_image }}" alt="food image" /></td>
+            <td>
+              <h4><a href="/product/{{cartitem.product.slug}}">{{ cartitem.description }}</a></h4>
+              <p class="checkout_serves">{% if cartitem.product.slug != "gifting" %}serves <span class="serves">{{cartitem.serves}}</span> | {% endif %}<span class="remove_item {{ cartitem.id }}">REMOVE</span> </p>
+            </td>
+            <td>
+              {% if not cartitem.product.is_gift %}
+              <input type="text" class="quantity" value="{{ cartitem.quantity|normalize_decimal }}" name="cartitem_{{ cartitem.id }}" />
+              {% else %}  
+               <input type="text" class="quantity gift_quantity" value="{{ cartitem.quantity|normalize_decimal }}" name="cartitem_{{ cartitem.id }}" />
+              {% endif %}
+            </td>
+            <td>
+              <div class="unit-price">{{ cartitem.unit_price|currency }}</div>
+            </td>
+            <td>
+              <p class="total_item_price">{{ cartitem.line_item_price|currency }} </p>
+            </td>
+          </tr>
+          {% endfor %}
+        </table>
+
+      </div> <!-- .shopping-cart -->
+
+      {% comment %}
+      only show tax if logged in already
+      tax: {{ cart.tax|currency }}
+      {% endcomment %}
+
+      <div class="section subtotal clearfix">
+        <div class="next-action">
+          <div class="discount-code">
+
+            <div class="msg"><u>Have a Discount Code?  Enter Here.</u></div>
+            <div class="discount-form">
+             
+              <input type="text" value="{{discount}}" name="discount" class="code" placeholder="Enter code here" />
+              <span class="apply">Apply</span>
+            </div>
+
+          </div> <!-- .discount-code -->
+         <!--  <div class="enterGiftMessage"><p>Have a Gift Card Number? Enter in Payment section below.</p></div> -->
+        </div> <!-- .next-action -->
+        <div class="line_item_container">
+          <ul class="line-items clearfix">
+            <li class="checkout_subtotal">
+              <label>Subtotal</label>
+              <div class="price" id="price_subtotal">{{ cart.sub_total|currency }}</div>
+            </li>
+
+            {% if contact %}
+            <li class="tax">
+              <label>TAX&nbsp;</label>
+              <div class="price" id="price_tax">{{ cart.tax|currency }}</div>
+            </li>
+            {% endif %}
+
+            <li class="shipping">
+              <label>Shipping</label>
+              <div class="price" id="price_shipping">$0.00</div>
+            </li>
+
+            <li class="balance" {% if not contact.balance%}style="display:none;"{% endif %}>
+              <label style="color:#669934;">Credits</label>
+              <div class="price" style="color:#669934;">-{{ contact.balance|currency }}</div>
+            </li>
+
+            <li class="discount"> {% comment %} {% if not discount_amount %}hidden{% endif %} {% endcomment %}
+              <label>Promo Applied</label>
+              <div class="price" id="discount_amt">
+                {% if discount_amount %}-{{discount_amount|currency}} {% else %}$0.00{% endif %}
+              </div>
+            </li>
+
+            <li class="line-total">
+              <label>Order Total</label>
+              <div class="price" id="total_amt">
+
+                {% if cart_total %}
+                {{ cart_total|currency }}
+                {% else %}
+                {{ cart.total|currency }}
+                {% endif %}
+
+              </div> <!-- .price -->
+            </li>
+          </ul>
+        </div> <!-- .line_item_container -->
+        <div class="subtotalLine"></div>
+      </div> <!-- .section.subtotal -->
+
+      {% endif %}{# cart|length #}
+
+      <!-- <hr class="extrahr" /> -->
+      <div class="info">
+
+        {% if contact_form.errors %}
+        <script type="text/javascript">
+          if (typeof _kmq != 'undefined') {
+            _kmq.push(['record', 'Checkout Error', {'errors': '{{form.errors|escapejs}}'}]);
+          }
+        </script>
+        {% endif %}{# contact_form.errors #}
+
+        {# Errors #}
+
+        {% if contact_form.non_field_errors %}
+        <h3>Please correct the following errors:</h3>
+
+        {{ contact_form.non_field_errors }}
+        <script type="text/javascript">
+          if (typeof _kmq != 'undefined') {
+            _kmq.push(['record', 'Checkout Error', {'errors': '{{form.non_field_errors|escapejs}}'}]);
+          }
+        </script>
+
+        {# :TODO: h3-tag should be after endif? #}
+        <h3>Personal Info</h3>
+        {% endif %}{# contact_form.non_field_errors #}
+
+
+        {% if contact.cim_id %}
+        <input type="hidden" name="profile_id" value="{{contact.cim_id}}" />
+        <ul class="contact cim-data">
+          <li><h3>PERSONAL AND BILLING INFO</h3></li>
+          {% if contact.full_name %}
+          <li>
+              {{ contact.full_name }}
+          </li>
+          {% endif %}
+
+          <a class="edit-info edit_button_1">Edit</a>
+
+          {% if contact.email %}
+          <li>{{ contact.email }}</li>
+          {% endif %}
+
+          {% if contact.primary_phone %}
+          <li>{{ contact.primary_phone }}</li>
+          {% endif %}
+
+          {% if billing_address %}
+          <li>{{ billing_address.street1 }}</li>
+          {% endif %}
+
+          {% if billing_address.street2 %}
+          <li>{{billing_address.street2}}</li>
+          <li>{{ billing_address.city }}, {{ billing_address.state }}, {{ billing_address.postal_code }} </li>
+          <li>{{ billing_address.phone_number }}</li>
+
+          {% endif %}
+
+          {# :TODO: hr-tag must not be directly in ul-tag #}
+          <hr class="thinline2" />
+    {% if not cart.gift_only %}
+          {% if shipping_address %}
+          <li><h3 class="chekout_shipping_address">SHIPPING ADDRESS</h3></li>
+          <li class="chekout_shipping_address">{{shipping_address.street1}}</li>
+          {% endif %}
+
+          {% if shipping_address.street2 %}
+          <li class="chekout_shipping_address">{{shipping_address.street2}}</li>
+          {% endif %}
+
+          <li class="chekout_shipping_address">{{shipping_address.city}}, {{shipping_address.state}}, {{shipping_address.postal_code}}</li>
+
+          {# :TODO: hr-tag must not be directly in ul-tag #}
+          <hr class="thinline2 chekout_shipping_address" />
+
+          {# :TODO: a-tag must not be directly in ul-tag #}
+          <a class="edit-info edit_button_2 chekout_shipping_address">Edit</a>
+    {% endif %}
+        </ul>
+
+        {% endif %}{# contact.cim_id #}
+
+        <ul class="contact {% if contact.cim_id %} hidden {% endif %}contact-form clearfix">
+          {% for field in contact_form %}
+
+          {% if field.html_name != "title" and field.html_name != "addressee" and field.html_name != "organization" and field.html_name != "paymentmethod" and field.html_name != "next" and field.html_name != "country" and field.html_name != "ship_country" and field.html_name != "discount" and field.html_name != "ship_is_residential" %}
+
+          <li class="{{ field.html_name }}{% if field.errors %} error {% endif %}">
+            {% if field.html_name == "street1" %}
+            <label for="id_street1">Street Address*</label>
+
+            {% else %}
+            {% if field.html_name == "street2" %}
+            <label for="id_street2">Apt or Suite</label>
+            <div class="subcontents">Please note we cannot ship P.O. Boxes or APO/FPO/DPO addresses</div>
+
+            {% else %}
+            {% if field.html_name == "ship_street2" %}
+            <label for="id_ship_street2">Apt or Suite</label>
+            <div class="subcontents">Please note we cannot ship P.O. Boxes or APO/FPO/DPO addresses</div>
+
+            {% else %}
+            {{ field.label_tag }}
+            {% endif %}{# not field.html_name == "ship_street2" #}
+            {% endif %}{# not field.html_name == "street2" #}
+            {% endif %}{# not field.html_name == "street1" #}
+
+            {{ field }}
+
+            {% for error in field.errors %}
+            <div class="error-message">{{ error }}</div>
+            {% endfor %}
+          </li>
+          {% endif %}{# field.html_name != "title" and field.html_name != "addressee" and field.html_name != "organization" and field.html_name != "paymentmethod" and field.html_name != "next" and field.html_name != "country" and field.html_name != "ship_country" and field.html_name != "discount" and field.html_name != "ship_is_residential" #}
+
+          {% endfor %}
+        </ul>
+
+        {# Personal Info #}
+
+      {% if cart.numMenus %}
+        <h3 class="checkout_delivery_date">SCHEDULE DELIVERY</h3>
+        
+        <div class="shipping-date">
+          <div class="shipping-cal">
+            <p class="shipping_instructions">Select a date to receive your order from the highlighted range below:</p>
+
+
+          </div> <!-- .shipping-cal -->
+          <div class="tos-checkbox">
+            <input type="checkbox" class="tos" {% if already_submitted %} checked {% endif %} />
+            <p>I understand I must transfer my food from box to freezer before 8 PM the day I receive it.*</p>
+          </div> <!-- .tos-checkbox -->
+          <div class="shipping-cal-fields">
+            <p>
+              <select name="shipping_date" >
+                <option value="">Select one</option>
+                {% for d in dates %}
+                <option>{{ d }}</option>
+                {% endfor %}
+              </select>
+            </p>
+          </div> <!-- .shipping-cal-fields -->
+
+        </div> <!-- .shipping-date -->
+
+        {% endif %}
+
+        <h3>Payment</h3>
+
+        {% if contact.credit_cards %}
+        <div class="cc-info-filled clearfix">
+          <ul class="contact payment cim-data clearfix">
+
+            {% for card in contact.credit_cards %}
+            <!--  <h3>{{card.ccv_code}}</h3> -->
+            <li class="credit-card">
+              <label><input type="radio" id="payment_profile_id" name="payment_profile_id" value="{{card.payment_profile_id}}" {% if forloop.first %}checked="checked"{% endif %} /> </label>
+              <p class="{{card.credit_type}}">
+                <span><img class="cc-icon" src="/static/img/{{card.credit_type}}.png" /></span>
+                <strong>{{card.credit_type}}</strong>
+
+                ending in: {{card.display_cc}}
+
+                <span class="credit_card_remove {{card.payment_profile_id}}">REMOVE </span>
+                <span id="cc_edit_info" class="cc_edit_info_type" name="{{card.credit_type}}" value="{{card.display_cc}}" style="display:none">
+                  <span class="cc_edit_info_month">{{card.expire_month}}</span>
+                  <span class="ccDots">X X X X X X X X X X X X </span>  
+                  <span class="cc_edit_info_year">{{card.expire_year}}</span>
+                </span>
+                <span class="cc_edit"> EDIT </span>
+                <span class="exp_date">EXP {{card.expire_date}}</span>
+              </p>
+            </li>
+            {% endfor %}
+
+            <li class="new_card_btn">
+              <a class="add_new_cc">ADD A NEW CARD</a>
+            </li>
+
+          </ul>
+          <div></div>
+        </div> <!-- .cc-info-filled -->
+        {% endif %}{# contact.credit_cards #}
+
+         <div class="payment_div">
+          <ul class="contact payment-form {% if contact.credit_cards %} hidden {% endif %}">
+            {% if form.errors %}
+            {% if not settings.LOCAL_DEV %}
+            <script type="text/javascript">
+              if (typeof _kmq != 'undefined') {
+                _kmq.push(['record', 'Checkout Error', {'errors': '{{form.errors|escapejs}}'}]);
+              }
+            </script>
+            {% endif %}{# not settings.LOCAL_DEV #}
+            {% endif %}{# form.errors #}
+
+            {% for field in form %}
+            {% if field.html_name != "shipping_date" and field.html_name != "discount_code" %}
+            <li class="{{ field.html_name }}{% if field.errors %} error{% endif %}">
+
+              {% if field.html_name == "ccv" %}
+              <label for="id_ccv">CVV:</label>
+              {% else %}
+              {{ field.label_tag }}
+              {% endif %}
+
+              {{ field }}
+
+              {% for error in field.errors %}
+              <div class="error-message">{{ error }}</div>
+              {% endfor %}
+            </li>
+            {% endif %}{# field.html_name != "shipping_date" and field.html_name != "discount_code" #}
+            {% endfor %}
+
+          </ul>
+        </div> <!-- .payment_div -->
+
+
+        <div class="gift_card_box">
+          <h3>HAVE A GIFT CARD?</h3>
+          <p>Enter Gift Card Number</p>
+            <input type="text" class="gift_card_code" placeholder="Enter gift card number here" />
+            <button class="apply gift_card_apply">APPLY</button>
+        </div> <!-- .gift_card_box -->
+
+        <div class="clear"></div>
+
+        {% if not cart.gift_only and not contact.cim_id %}
+
+        <div class="sub-club">
+          {% if not already_submitted %} 
+            <input type="checkbox" class="sub" />
+          
+          {% else %}
+
+            <input type="checkbox" class="sub"  checked="checked" />
+          {% endif %}
+          <p>I understand that I am agreeing to join Pop-Up Pantry's Premiere Dining program, a no-obligation subscription club, and have read and reviewed the program's <a href="/terms"target="_blank"> terms</a>.</p>
+           
+        </div> <!-- .sub-club -->
+        {% endif %}
+      
+       
+
+        <div class="place-order">
+          <div class="errors_on_page">Please see yellow message box above &uarr;</div>
+            <input type="submit" value="PLACE ORDER" id="checkout_submit" {% for message in checkout_messages %}{% if message.disable_checkout %} disabled='true' {% endif %}{% endfor %} class="orange_button" style="height:40px" />
+        </div> <!-- .place-order -->
+
+      </div> <!-- .info -->
+
+<!--
+      <div class="terms-of-service">
+        Deliveries to offices or businesses are guaranteed by the end of the business day. Deliveries to residences may be as late as 7:30 PM. Please review preparation instructions included with your meals, and place your meals in the refrigerator (for preparation within 3 days) or in the freezer (for preparation anytime) by 8:00 PM on the day received. You must select a date when someone can transfer the delivery from package to freezer, however we will gladly refund or replace meals delivered late, damaged, or lost in transit. We guarantee your satisfaction, so please do not hesitate to contact Customer Service.
+      </div>
+-->
+
+    </div> <!-- .order -->
+
+  </div> <!-- .checkout -->
+
+ <!-- <input type="hidden" name="profile_id" id="profile_id" value="{{contact.cim_id}}" /> -->
+</form>
+
+{% for message in checkout_messages %}
+{% if message.alert_post %}
+<form id="upgrade-plan" class="upgrade-plan-form" method="post" action="{{message.alert_link}}">
+  {% csrf_token %}
+  <input type="hidden" class="group" name="group" value="{{message.alert_post.group}}" />
+  <input type="hidden" class="ajax" name="ajax" value="{{message.alert_post.ajax}}" />
+  <input type="submit" class="hidden" />
+</form>
+{% endif %}
+{% endfor %}
+
+<form id="upgrade-plan" class="upgrade-plan-form" method="post" action="">
+  {% csrf_token %}
+  <input type="hidden" class="group" name="group" value="" />
+  <input type="hidden" class="ajax" name="ajax" value="" />
+  <input type="submit" class="hidden" />
+</form>
+
+{% endblock %}
+
+{% block extra_js %}
+    <script src="/static/js/libs/kalendae.min.js" type="text/javascript" charset="utf-8"></script>
+    <script type="text/javascript" charset="utf-8">
+
+      //$('.k-days').find("span[data-date^='"+$.cookie('delivery-date')+"']")
+      $('document').ready(function(){
+
+        //color dates for calander
+        
+      // formatedDatesEx.forEach(function(e){
+      //   console.log($(this));  
+      // });
+
+      // for(i=0; i<formatedDatesEx.length; i++) {
+      //   formatedDatesEx[i] = "Do Something Here";
+      // }
+
+        // formatedDatesEx.each(function(){
+        //   console.log($(this));
+        // })
+             
+             //console.log(formatedDatesEx);
+             //console.log(availableDatesEx);
+             //console.log(allOpenDates); 
+
+             var allTheDates = []
+             $('.k-active').each(function(e){
+                allTheDates.push($(this).data("date"));
+             });
+
+            console.log(allTheDates);
+            console.log(formatedDatesEx);
+
+          // for (var i = 0; i < allTheDates.length; i++) {
+      
+          // }
+      for (var j = 0; j < formatedDatesEx.length; j++) {
+                  // if (allTheDates[i] == formatedDatesEx[j]) {
+                    console.log("true");
+                    $(document).find("span[data-date='" + formatedDatesEx[j] + "']").addClass("dateEx");
+                  // }
+              }
+             
+          // allTheDates.forEach(function(elem) {
+          //       if( formatedDatesEx.indexOf(elem) > -1 ) {
+          //         console.log($(this));
+          //       }
+          // });
+      
+
+
+        // $('.k-active').each(function(){
+        //   dateList = $(this).data("date").makeArray();
+        //   console.log(dateList);
+        // }); 
+        // console.log(dateList);
+
+
+        
+          
+
+          //res or biz chekbox
+          if ($('#profile_id').val() !== "None"){
+            if ( ! $('.res_radio').is(':checked')){
+               $('.bis_radio').attr("checked", 'checked');
+            }
+          }
+
+        //edit info     
+        $('.edit-info').click(function () {
+          $(this).parents('ul').addClass("hidden").next().removeClass("hidden");
+
+          if($('.hiddenupdate').length == 0) {
+            $('#checkout-form').append('<input class="hiddenupdate" type="hidden" name="update" value="True" />');
+          }
+          return false;
+        });
+      
+        //discount form click
+        $('.discount-form span').click(function () {
+          $.ajax({
+            type: 'POST',
+            url: '/checkout/discount/',
+            data: { discount: $('.code').attr('value'), csrfmiddlewaretoken: $('.csrf').html()},
+            dataType: 'json',
+            success: function (resp, textStatus) {
+
+              if (resp.error) {
+                $('#discount_form_error').remove();
+                $('.discount-form').before("<div class='error' id='discount_form_error'>"+resp.error+"</div>")
+                $('.cart-message').html(resp.error);
+              } else {
+                $('#discount_form_error').remove();
+                $('.line-items .discount').removeClass('hidden');
+                $('#discount_amt').html('-' + resp.discount+'');
+                $('#total_amt').html(resp.total);
+                $('.cart-message').remove();
+              }
+            },
+            error: function (xhr, textStatus, errorThrown) {
+              console.log('failed');
+              console.log(textStatus);
+            }
+          });
+          return false;
+        });
+        
+        //gift card apply  
+        $('button.gift_card_apply').live('click', function() {
+        console.log("click");
+        $.ajax({
+          type: 'POST',
+          url: "/checkout/giftcard/",
+          data: {card: $('.gift_card_code').val(), csrfmiddlewaretoken: $('.csrf').html(), cart_id: {{cart.id}} },
+
+          success: function(resp, textStatus, data, response){
+
+              var reg = jQuery.parseJSON(resp);
+                   //if(reg['errors']) {
+            if (reg['error']) {
+
+              if ($('.error_span').length == 0){
+                $('.gift_card_box').prepend('<span class="error_span gift_card_error"><p>There was an error with your gift card.</p></span>');
+              } else {
+                $('.cart-message').remove();
+              }
+              $('.gift_card_box input').click(function(){
+               thist = $(this).val("");
+               $('.gift_card_error').remove();
+              });
+
+            } else{
+              var response = reg;
+              var total = response.total;
+              var account_balance = response.account_balance;
+              var gift_card_balance = response.card_value_applied;
+
+              $('.balance').find('div').contents().remove();
+              $('.balance').find('div').append("-"+account_balance+"");
+              $('.balance').show();
+
+              $('.line-total').find('div').contents().remove();
+              $('.line-total').find('div').append(""+total+"");
+
+              $('.gift_card_box').append('<div class="gift_card_layover"><div class="gc_left"><p>GIFT CARD(S) APPLIED</p><h3>('+gift_card_balance+')</div><div class="gc_middle"><p>NEW BALANCE</p><h3>'+total+'</h3></div><div class="gc_right"><p>HAVE ANOTHER GIFT CARD?</p><span class="more_gc_button">+ ADD</span></div>');
+
+              $('.more_gc_button').click(function(){
+                $(this).parent().parent().css("display", "none");
+
+              })
+
+            }
+          },
+
+          error: function(xhr, textStatus, errorThrown){
+              $('.gift_card_box').prepend('<span class="error_span"><p>There was an error with your gift card code</p></span>')
+              console.log('failed');
+              console.log(textStatus);
+          }
+
+        });
+
+        return false;
+      });
+       
+        //cookie for calander save date
+        var selectDate = $('.k-days').find("span[data-date^='"+$.cookie('delivery-date')+"']");
+        selectDate.addClass('k-selected k-active');
+        $('.sub').attr('checked', false);
+
+        //if gift only, check true shipping same as biling
+        if ($('#only_gifts').length) {
+          $('#id_copy_address').prop('checked', true);
+        }
+
+        //for REGULAR size drop-downs
+        $('select#id_state, select#id_ship_state').each(function(){
+          var title = "---Please Select---";
+          //var title = $(this).attr('name');
+          if( $('option:selected', this).val() != ''  ) title = $('option:selected',this).text();
+          $(this)
+                .css({'z-index':21,'opacity':0,'-khtml-appearance':'none'})
+                .after('<span class="selectCover">' + title + '</span>')
+                 .change(function(){
+                    val = $('option:selected',this).text();
+                    $(this).next().text(val);
+                });
+        });
+
+        //for LONG size drop-downs
+        $('select#id_credit_type').each(function(){
+        var title = $(this).attr('name');
+        if( $('option:selected', this).val() != ''  ) title = $('option:selected',this).text();
+        $(this)
+              .css({'z-index':21,'opacity':0,'-khtml-appearance':'none'})
+              .after('<span class="selectCoverLong">' + title + '</span>')
+               .change(function(){
+                  val = $('option:selected',this).text();
+                  $(this).next().text(val);
+                  })
+          });
+          //for MONTH size drop-downs
+          $('select#id_month_expires').each(function(){
+          var title = $(this).attr('name');
+          if( $('option:selected', this).val() != ''  ) title = $('option:selected',this).text();
+          $(this)
+                .css({'z-index':21,'opacity':0,'-khtml-appearance':'none'})
+                .after('<span class="selectCoverShort selectCoverMonth">' + title + '</span>')
+                 .change(function(){
+                    val = $('option:selected',this).text();
+                    $(this).next().text(val);
+                    })
+            });
+
+          //for YEAR size drop-downs
+          $('select#id_year_expires').each(function(){
+          var title = $(this).attr('name');
+          if( $('option:selected', this).val() != ''  ) title = $('option:selected',this).text();
+          $(this)
+                .css({'z-index':21,'opacity':0,'-khtml-appearance':'none'})
+                .after('<span class="selectCoverShort selectCoverYear">' + title + '</span>')
+                 .change(function(){
+                    val = $('option:selected',this).text();
+                    $(this).next().text(val);
+                    })
+            });
+
+      });
+
+        $('.email').before('<li><hgroup><h3>PERSONAL INFO</h3></hgroup></li>');
+        $('.street1').before('<li><hgroup><h3>BILLING ADDRESS</h3></hgroup></li>');
+        $('.ship_addressee').before('<li class="shipping-address-title"><h3 class="chekout_shipping_address">Shipping Address</h3></li>');
+        var space = $('.space').text();
+
+         $('.ship_addressee').before('<div class="res_or_bis clearfix"><div class="residence_text">This is a: Residence </div><input type="radio" name="ship_is_residential" value="true" id="id_ship_is_residential" class="res_radio" {% if ship_is_residential %} checked="checked" {% endif %} /><div class="business_text"> Business</div>  <input type="radio" name="ship_is_residential" value="false" class="bis_radio" id="id_ship_is_residential" /> </div>');
+
+
+        var availableDates = [{% for d in dates %}'{{ d }}'{% if not forloop.last %}, {% endif %}{% endfor %}];
+        var availableDatesEx = ["01/14/2013", "01/15/2013", "01/19/2013", "01/20/2013", "01/22/2013", "01/23/2013", "01/26/2013", "02/27/2013", "02/28/2013", "02/29/2013"];
+        var formatedDatesEx = ["2013-01-14", "2013-01-15", "2013-01-19", "2013-01-20", "2013-01-22", "2013-01-23", "2013-01-26", "2013-01-27", "2013-01-28", "2013-01-29", "2013-01-29"];
+        //console.log(theDatesEx);
+
+        var allOpenDates = $.merge(availableDates, availableDatesEx); 
+        if ($('.shipping-cal').kalendae !== undefined) {
+            try {
+            $('.shipping-cal').kalendae({
+                months: 1,
+                format: 'MM/DD/YYYY',
+                mode: 'single',
+                direction: 'future',
+                {% if shipping_date %}
+                selected: '{{shipping_date}}',
+                {% endif %}
+                viewStartDate: availableDates[0],
+                blackout: function (date) {
+
+                    if($.inArray(Kalendae.moment(date).format("MM/DD/YYYY"), allOpenDates) < 0) {
+                        return Kalendae.moment(date).date();
+                    }
+
+                }
+            });
+             
+            // Hide the actual calendar fields.
+            $('.shipping-cal-fields').css({
+                'position': 'absolute',
+                'left': '-9999px'
+            });
+            } catch(e) {}
+        }
+
+        function zeroPad(num,count)
+        {
+            var numZeropad = num + '';
+            while(numZeropad.length < count) {
+            numZeropad = "0" + numZeropad;
+        }
+            return numZeropad;
+        }
+
+        $('#id_copy_address').click(function() {
+
+            if($('#id_copy_address').not(':checked').length) {
+                $('.ship_addressee, .ship_street1, .ship_street2, .ship_city, .ship_state, .ship_postal_code, .shipping-address-title').show();
+            }
+            else {
+                $('.ship_addressee, .ship_street1, .ship_street2, .ship_city, .ship_state, .ship_postal_code, .shipping-address-title').hide();
+            }
+
+        });
+
+      //change plan
+     $('.post-plan-change').live('click', function() {
+
+        $.ajax({
+          type: 'POST',
+          url: $('#upgrade-plan').attr('action'),
+          data: $('#upgrade-plan').serializeArray(),
+          success: function(resp, textStatus){
+            if (resp.error) {
+             $('.cart-message').html(resp.error);
+            } else {
+              $('.line-items .line-total .price').html(resp.cart_total);
+              $('.line-total .price').html(resp.cart_total);
+              $('.line-items .checkout_subtotal .price').html(resp.cart_sub_total);
+              $('.line-items .tax .price').html(resp.cart_tax);
+
+              $('table.section tr').each(function(index, element) {
+                  element = $(element);
+                  // Skip MasterChef items
+                  // TBD: It’d probably be better if we added a “special-price” class name to items we should skip here.
+                  if (String(element.html()).toLowerCase().indexOf("masterchef") >= 0) return;
+                  element.find('.unit-price').html(resp.cart_item_price);
+              });
+              $('.section tr td p.total_item_price').each(function(){
+                 var numberItems = $(this).parent().parent().find("input[class^='quantity']").val();
+                 var itemCost = $(this).parent().parent().find("div[class^='unit-price']").text();
+                 var itemCostNumber = Number(itemCost.replace(/[^0-9\.]+/g,""));
+                 var totalItemPrice = numberItems * itemCostNumber;
+
+                 var thisPrice = $(this);
+                 var fieldText =  $(this).contents();
+
+                 fieldText.filter(function() {
+                    return this.nodeType == 3; //Node.TEXT_NODE
+                 });
+
+                 fieldText.remove();
+                 $(this).append("$"+totalItemPrice+".00");
+
+              });
+
+              $('.cart-message').remove();
+            }
+
+          },
+          error: function(xhr, textStatus, errorThrown){
+              console.log('failed');
+              console.log(textStatus);
+          }
+
+        });
+        return false;
+      });
+
+      //remove credit card
+     $('.credit_card_remove').live('click', function() {
+      var thisCreditCard = $(this).attr('class');
+      thisCreditCard = thisCreditCard.replace('credit_card_remove', '');
+      removeButton = $(this);
+      removeButton.closest('li').fadeOut().remove();
+        $.ajax({
+          type: 'POST',
+          url: "/checkout/card/remove/",
+          data: {card_id: thisCreditCard, csrfmiddlewaretoken: $('.csrf').html() },
+          success: function(resp, textStatus){
+            if (resp.error) {
+              $('.cart-message').prepend('<span class="error_span"><p>resp.error</p></span>');
+            } else {
+              $('.cart-message').remove();
+            }
+          },
+          error: function(xhr, textStatus, errorThrown){
+              $('.cc-info-filled').prepend('<span class="error_span"><p>There was an error removing your card.</p></span>')
+              console.log('failed');
+              console.log(textStatus);
+          }
+
+        });
+
+        return false;
+      });
+
+     if($('input.orange_button').is(":disabled")){
+      $('.errors_on_page').fadeIn();
+     }else{
+      $('.errors_on_page').fadeOut();
+     }
+
+      //checkout 
+      var shippingDateField;
+        $('#checkout-form').submit(function() {
+          // if($('#id_ccv').text() == ""){
+          //   alert('hi'); 
+          //   return false;
+          // }
+          var selectedK = $('.k-days').find("span[class^='k-selected']");
+          var selectedDate = selectedK.attr("data-date");
+          var returnValue = true;
+          $.cookie('delivery-date', ''+selectedDate+'');
+
+          $(".error").remove();
+          $('.error-message').remove();
+
+            //check if gift only
+            //if gift only, check true shipping same as biling
+                if ($('#only_gifts').length) {
+                  $('#id_copy_address').prop('checked', true);
+                }
+
+          if ($('.k-selected').length) {
+              var dateStr = $('.k-selected').attr('data-date').split("-");
+              var year  = dateStr[0];
+              var month = dateStr[1];
+              var day   = dateStr[2];
+              var shipdate = month + "/" + day + "/" + year;
+
+              var isAvailable = false;
+              for (var index = 0; index < availableDates.length; index++) {
+                  if (availableDates[index] === shipdate) {
+                      isAvailable = true;
+                  }
+              }
+              if (isAvailable) {
+                  $('select[name*=shipping_date]').val(shipdate);
+              }
+          }
+
+            if ($('select[name*=shipping_date]').val().replace('Select one','') == "") {
+              $('.shipping-cal').prepend('<div class="error" style="display: block;">Please select a shipping date.</div>');
+            }
+
+           
+
+            $('#id_first_name, #id_last_name, #id_phone, #id_street1, #id_city, #id_state').each(function(index){
+                if ($.trim($(this).val()).length == 0 ) {
+                  $(this).parent().before('<li class="error_li"><div class="error">This field cannot be blank.</div></li>');
+                }
+            });
+
+             $('#id_postal_code').each(function(index){ 
+                if ($.trim($(this).val()).length == 0 ) {
+                  $(this).parent().prepend('<li class="error_li_post_code"><div class="error">This field cannot be blank.</div></li>');
+                }
+            });
+
+            {% comment %}
+                Lets make sure we require a credit card if there is a balance OR if a discount code was used to achieve $0 balance.
+            {% endcomment %}
+
+            if (!($('li.credit-card').length) || $('input.hiddenupdate').val() == "True") {
+                if (parseInt($('.line-total .price').text().replace('$','')) > 0
+                ||  (parseInt($('.discount .price').text().replace('$','')) < 0 && (!($('.balance .price').text())))
+                ) {
+                    if ($.trim($('#id_credit_number').val()).length == 0 || $.trim($('#id_ccv').val()).length == 0) {
+                        $('ul.payment-form').prepend('<div class="error">Please enter your credit card and CVV information.</div>');
+                    }
+                } 
+            }
+
+
+            if ($('#id_state').val() == '---Please Select---') {
+              $(this).prev().append('<div class="error">Please select a State.</div>');
+            }
+
+            if (!$("input[name=ship_is_residential]:checked").val()){
+               $('.res_or_bis').prepend('<div class="error" style="display: block">You must check one.</div>');
+            }
+
+               if ($('.tos').not(':checked').length) {
+                if(!$('.tos-checkbox .error').length) {
+                  $('.tos-checkbox').prepend('<div class="error" style="display: block">You must agree to the delivery rules in order to check out.</div>');
+                }
+              }
+
+            if($('.sub-club').length){
+                  if ($('.sub').not(':checked').length) {
+                      if(!$('.sub-club .error').length) {
+                          $('.sub').before('<div class="error">You must agree to join PUP\'s Premiere Dining subscription club.</div>');
+                      }
+                  }
+            }
+            if ($('.error').length > 0) {
+                
+              //$('.fields').prepend('<div class="error">Please check  errors in red.</div>');
+
+              var container = $('.checkout');
+              var errors = $('.checkout').find("div[class^='error']");
+              var firstError = errors.get(0);
+              $('html, body').animate({ scrollTop: $(firstError).offset().top}, 1500);
+              return false;
+
+            }else {
+              
+              return true;
+            }
+
+
+
+        });
+
+        //add new credit card
+      $('.add_new_cc').click(function(){
+        $("#payment_profile_id").attr("value", "");
+      });
+
+        //edit credit card
+      $('.cc_edit').live("click", function(){
+        $('#checkout-form').append('<input class="hiddenupdate" type="hidden" name="update" value="True" />');
+        $('.cc-info-filled').css("display", "none");
+        $('.payment_div ul').removeClass("hidden");
+         
+        var thisCC = $(this).prev();
+        var thisCCName = thisCC.attr('name');
+        console.log(thisCCName);
+        var thisCCNumber = thisCC.attr('value');
+        var thisCCMonth = thisCC.children(":first-child").html();
+        var thisCCYear = thisCC.children(":last-child").html();
+        var dots = $('.ccDots').html();
+
+        $(".selectCoverLong").contents().remove();
+        $(".selectCoverLong").append(thisCCName);
+        $("#id_credit_type").val(thisCCName);
+
+        $('#id_credit_number').val(dots + thisCCNumber);
+
+        $(".selectCoverMonth").contents().remove();
+        $(".selectCoverMonth").append(thisCCMonth);
+        $("#id_month_expires").val(thisCCMonth);
+
+        $(".selectCoverYear").contents().remove();
+        $(".selectCoverYear").append(thisCCYear);
+        $("#id_year_expires").val(thisCCYear);
+
+        
+        $('.payment input').attr('checked', false);
+        $(this).parent().prev().find('input:radio').attr('checked', true);
+
+       
+      });
+
+      $('.add_new_cc').live("click", function(){
+        $('.cc-info-filled').css("display", "none");
+        $('.payment_div ul').removeClass("hidden");
+
+      });
+
+
+    </script>
+{% endblock extra_js %}
+

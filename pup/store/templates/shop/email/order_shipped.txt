@@ -1,0 +1,25 @@
+{% load i18n %}{% with order.contact.first_name as first_name %}{% with order.contact.last_name as last_name %}{% blocktrans %}Dear {{ first_name }} {{ last_name }},{% endblocktrans %}{% endwith %}{% endwith %}
+
+{% blocktrans %}Thank you for ordering with {{ shop_name }}.{% endblocktrans %}
+
+Your order #{{order.order_number}} has shipped today via UPS. It should arrive on {{ order.shipping_date|date:"D M d Y" }}. {% if order.ordershipping_set.all %}Your UPS tracking ID{% if order.ordershipping_set.count > 1 %}s are{% else %} is{% endif %}: {% for s in order.ordershipping_set.all %} {{s.tracking_number}}{% if not forloop.last %},{%endif%}{% endfor %}.{% endif %} 
+
+{% load i18n satchmo_currency satchmo_discounts normalize_decimal %}{% block order_details_items %}{% trans "Items Ordered" %}
+--------------{% for item in order.orderitem_set.all %}
+{{ item }} - {{tier.price|currency}} x {{item.quantity|normalize_decimal}}{% endfor %}{% endblock order_details_items %}
+
+
+{% trans "Shipped to:" %}
+----------------
+{{ order.full_ship_street }}
+{{ order.ship_city }}
+{{ order.ship_state }}
+{{ order.ship_postal_code }}
+{{ order.ship_country }}
+
+
+
+{% block valediction %}{% trans "Eat Well" %},
+Tom & David
+Pop-Up Pantry Co-Founders
+{% endblock%}

@@ -1,0 +1,135 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <!-- Facebook sharing information tags -->
+        <meta property="og:title" content="Oops! You left some food out">
+        
+        <title>Review your Pop-Up Pantry menus</title>
+		
+	</head>
+    <body leftmargin="0" marginwidth="0" topmargin="0" marginheight="0" offset="0" style="-webkit-text-size-adjust: none;background-color: invisible;margin: 0;padding: 0;color: #555;font-family: &quot;museosans-500&quot: ;,helvetica,sans-serif: ;background: url(https://popuppantry.com/static/img/bg.jpg);width: 100% !important;">
+    	<center>
+        	<table border="0" cellpadding="0" cellspacing="0" height="100%" width="100%" id="backgroundTable" style="background-color: #ffffff;margin: 0;padding: 0;height: 100% !important;width: 100% !important;">
+            	<tr>
+                	<td align="center" valign="top">
+                        <!-- // Begin Template Preheader \ -->
+                        <table border="0" cellpadding="10" cellspacing="0" width="600" id="templatePreheader" style="background-color: invisible;">
+                            <tr>
+                                <td valign="top" class="preheaderContent">
+                                
+                                	<!-- // Begin Module: Standard Preheader \ -->
+                                    <table border="0" cellpadding="10" cellspacing="0" width="100%">
+                                    	<tr>
+                                        	<td valign="top">
+                                            	<div style="color: #505050;background-color: invisible;font-family: Arial;font-size: 10px;line-height: 100%;text-align: left;">Review your Pop-Up Pantry menus</div>
+                                            </td>
+                                            <td valign="top" width="180">
+                                            	<div style="color: #505050;background-color: invisible;font-family: Arial;font-size: 10px;line-height: 100%;text-align: left;">Add <u>maitred@popuppantry.com</u> to your address book to ensure delivery<!--  --></div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                	<!-- // End Module: Standard Preheader \ -->
+                                
+                                </td>
+                            </tr>
+                        </table>
+                        <!-- // End Template Preheader \ -->
+                    	<table border="0" cellpadding="0" cellspacing="0" width="600" id="templateContainer" style="background-color: invisible;">
+                        	<tr>
+                            	<td align="center" valign="top">
+                                    <!-- // Begin Template Header \ -->
+                                	<table border="0" cellpadding="0" cellspacing="0" width="600" id="templateHeader" style="background-color: invisible;border-bottom: 0;">
+                                        <tr>
+                                            <td class="headerContent" style="color: #202020;font-family: Arial;font-size: 34px;font-weight: bold;line-height: 100%;padding: 0;text-align: left;vertical-align: middle;">
+                                            
+                                            	<!-- // Begin Module: Standard Header Image \ -->
+                                            	<a href="http://popuppantry.com/" style="color: #336699;font-weight: normal;text-decoration: underline;"><img src="https://s3.amazonaws.com/pup_imgs/site_photos/PUP_Logo_1.png" alt="" border="0" style="margin: 0;padding: 0;max-width: 357px;border: none;font-size: 14px;font-weight: bold;height: auto;line-height: 100%;outline: none;text-decoration: none;text-transform: capitalize;" id="headerImage campaign-icon"></a>
+                                            	<!-- // End Module: Standard Header Image \ -->
+                                            
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <!-- // End Template Header \ -->
+                                </td>
+                            </tr>
+                        	<tr>
+                            	<td align="center" valign="top">
+                                    <!-- // Begin Template Body \ -->
+                                	<table border="0" cellpadding="10" cellspacing="0" width="600" id="templateBody">
+                                    	<tr>
+                                            <td valign="top" class="bodyContent" style="background-color: invisible;color: #000000;font-family: Arial;font-size: 14px;line-height: 150%;text-align: left;">
+                                
+                                                <!-- // Begin Module: Standard Content \ -->
+                                                <table border="0" cellpadding="10" cellspacing="0" width="100%">
+                                                    <tr>
+                                                        <td valign="top">
+                                                            <div><div class="h1" style="display: block;margin-bottom: 10px;text-align: left;color: #000000;font-weight: bold;text-decoration: none;font-family: Georgia,Times,Serif;font-size: 31px;line-height: 35px;text-shadow: 0.05em 0.05em 0.03em #596060;">Tell Us What You Think</div>
+
+<p>Tom & David here, Pop-Up Pantry's co-founders. Thank you for your recent Pop-Up Pantry order. From everyone in our kitchen: We hope you are pleased with the food!</p>
+
+<p>We work every day -- literally -- to improve the experience of customers like you, and your feedback would be a tremendous help in making Pop-Up Pantry even better for you and your fellow food lovers.</p>
+
+<p>If you can spare a few minutes (perhaps while you're heating your next Pop-Up Pantry dinner?), please click on the links below to review the dishes in your recent order. Whether they were delicious or you were left unsatisfied, we want to hear about it.</p>
+
+{% for oi in order.orderitem_set.all %}
+
+{% if not oi.product.is_gift %}
+
+<div class="waitlistedItems" style="clear: both;width: 100%;height: 105px;margin-bottom: 8px;">
+	<div class="left" style="float: left;margin-left: 16px;width: 152px;height: 105px;overflow: hidden;">
+		<a href="{% url survey-order order.order_number %}?selected_product={{oi.product.slug}}&utm_source=OutboundCustomerEmail&utm_medium=Email&utm_campaign=ReviewYourMenus"><img src="{{oi.product.entree_image}}" alt="" title="" border="0" width="150" height="103" style="border: none;font-size: 14px;font-weight: bold;height: auto;line-height: 100%;outline: none;text-decoration: none;text-transform: capitalize;display: inline;"></a>
+	</div>
+	
+	<div class="right" style="float: right;margin-right: 16px;width: 400px;height: 105px;overflow: hidden;">
+		<div class="menuTitleWaitList" style="text-align: left;color: #000000;font-weight: bold;font-family: Arial,Verdana,Helvetica,sans-serif;font-size: 26px;line-height: 30px;margin: 0;"><a href="https://popuppantry.com/{% url survey-order order.order_number %}?selected_product={{oi.product.slug}}&utm_source=OutboundCustomerEmail&utm_medium=Email&utm_campaign=ReviewYourMenus" style="color: #000000 !important;font-weight: bold;text-decoration: none;">{{oi.product.name}}</a></div>
+		<div class="menuChefWaitList" style="text-align: left;color: #000000;font-weight: normal;font-family: Arial,Verdana,Helvetica,sans-serif;font-size: 11px;line-height: 14px;margin: 0;">crafted by {{oi.product.chef_display}}</div>
+	</div>
+</div>
+{% endif %}
+{% endfor %}
+
+
+
+
+
+<div class="orderNow" style="clear: both;display: block;color: #d64b20;text-transform: uppercase;text-align: center;font-weight: bold;font-family: Arial,Verdana,Helvetica,sans-serif;font-size: 34px;line-height: 38px;text-shadow: 0.05em 0.05em 0.11em #000000;padding: 20px 0 20px 0;background-color: invisible;"><a href="http://popuppantry.com/{% url survey-order order.order_number %}?utm_source=OutboundCustomerEmail&utm_medium=Email&utm_campaign=ReviewYourMenus" style="color: #d64b20;text-decoration: none;font-weight: bold;text-transform: uppercase;">Click to submit a review</a></div>
+
+
+
+<div class="signOff" style="clear: both;display: block;margin-top: 10px;"><img alt="" border="0" height="398" src="https://s3.amazonaws.com/pup_imgs/site_photos/EmailFooterEatWellTomDavid+(1).png" title="" width="600" style="border: none;font-size: 14px;font-weight: bold;height: auto;line-height: 100%;outline: none;text-decoration: none;text-transform: capitalize;display: inline;"></div></div>
+														</td>
+                                                                                                  </tr></table>
+                                                <!-- // End Module: Standard Content \ -->
+                                                
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <!-- // End Template Body \ -->
+                                </td>
+                            </tr>
+                        	<tr>
+                            	<td align="center" valign="top">
+                                    <!-- // Begin Template Footer \ -->
+                                	<table border="0" cellpadding="10" cellspacing="0" width="600" id="templateFooter" style="background-color: invisible;border-top: 1px dotted #333333;margin-top: 6px;">
+                                    	<tr>
+                                        	<td valign="top" class="footerContent" style="color: #000000;font-family: Arial;font-size: 12px;line-height: 125%;text-align: center;margin: 0 auto;">
+                                            
+                                                <!-- // Begin Module: Standard Footer \ -->
+
+                                                <!-- // End Module: Standard Footer \ -->
+                                            
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <!-- // End Template Footer \ -->
+                                </td>
+                            </tr>
+                        </table>
+                        <br>
+                    </td>
+                </tr>
+            </table>
+        </center>
+    </body>
+</html>

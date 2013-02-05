@@ -1,0 +1,42 @@
+*{margin:0px;}
+
+.checkout {
+border:1px solid #999999;
+}
+.login {
+border:1px solid #cccccc;
+}
+.tos  {
+width:32px;
+height:20px;
+}
+
+.gift_card_layover {
+background:#333333;
+}
+
+.gc_left {
+border-right:1px solid #eee;
+}
+
+.gc_middle {
+border-right:1px solid #eee;
+padding:0 30px;
+}
+
+.gc_right {
+width:33%;
+}
+
+header nav UL LI.sign-in .login INPUT[type='password']{
+font-family:Arial;
+}
+
+.beta-register ul li input {
+font-family:Arial;
+}
+
+.register form ul li input{
+font-family:Arial;
+}
+

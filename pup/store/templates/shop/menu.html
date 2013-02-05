@@ -1,0 +1,253 @@
+{% extends "base.html" %}
+
+{% block extra_head %}
+<script type="text/javascript"> 
+var _qevents = _qevents || [];
+
+_qevents.push(
+{qacct:"p-CtGRuC-swqzEZ",labels:"_fp.event.User Home Page"}
+);
+</script>
+<noscript>
+<img src="//secure.quantserve.com/pixel/p-CtGRuC-swqzEZ.gif?labels=_fp.event.User+Home+Page" style="display: none;" border="0" height="1" width="1" alt="Quantcast"/>
+</noscript>
+
+{% endblock extra_head %}
+
+
+
+
+
+{% block content %}
+
+    {# Order Item Modal #}
+    <div class="csrf">{{ csrf_token }}</div>
+    <div id="overlay">
+        <div class="menu-item {% if signup_text %}hidden{% endif %}">
+
+        <h2>Your item is now in your pantry</h2>
+        <h3>Consider these additional menus</h3>
+
+        <div class="main-course">
+            <div class="prod-details">
+            {# Image Here #}
+            {# Product Name #}
+            </div>
+            <span class="in-cart">In your shopping cart</span>
+        </div>
+
+        <ul class="other-products box">
+            {% for other_product in new_products %}
+            <li>
+                <a href="/product/{{other_product.slug}}/">
+                <img src="{{ other_product.entree_image }}" />
+                {{ other_product.name }}
+                </a>
+            </li>   
+            {% endfor %}
+        </ul>
+
+        <br clear="both" />
+
+        <div class="continue">
+            <a href="/">Continue Shopping</a>
+        </div>
+        <a href="/checkout/" class="button long">Proceed to Checkout</a>
+
+    </div>
+    {% if signup_text %}
+    <div class="sign-up">
+        <div class="header">
+        <h1>Welcome!</h1>
+        <a href="#" class="close">X</a>
+        </div>
+        <p>{{signup_text|safe }}</p>
+    </div>
+    {% endif %}
+    </div>
+    {# End Order Item Modal #}
+    {% if messages %} 
+     {% include "persistent_messages/message/includes/messages.jquery.html" %}
+    {% endif %}
+
+            <script type="text/javascript">
+            if (typeof _kmq != 'undefined') {
+                    _kmq.push(['record', 'Viewed User Home']);
+            }
+            </script>
+<div id="user_home">
+    <div class="menus user_home">
+
+        <h2>Your personalized menu selections this month</h2>
+
+        {% for product in my_menus %}
+         <div class="user_box">
+            <ul class="personalize">
+                <li class="box">
+                {% if product.inventory != 'OS' %} <div class="order-arrow order-item">Order</div>{% endif %}
+                <div class="menu-slug">{{ product.slug }}</div>
+                <div class="menu-name">{{ product.name }}</div>
+                
+                    <a href="/product/{{ product.slug }}/">
+                    <div class="image">
+                        <div class="food-image">
+                            <img src="{{ product.entree_image }}" />
+                          {% if product.inventory == 'OS' %} <span class="os"></span> {% endif %}
+                          {% if product.inventory == 'LS' %} <span class="ls"></span> {% endif %}
+
+                            
+                        </div>
+
+                        <div class="popover">
+                        <p>
+                            {{product.user_home_overlay|safe}}
+                        </p>
+                        </div>
+                    </div>
+                    <h3>{{ product.name }}</h3></a>
+                <p class="chef-name">{{product.chef_display}}</p>
+                </li>
+            </ul>
+        </div>
+                
+        {% endfor %}
+
+
+        <div class="divider"></div>
+
+        <h2>Additional recommendations from our chefs</h2>
+
+            <div id="user_menu">
+            {% for product in products %}
+            {% if product.active  %}
+            <div class="user_box">
+              <ul class="additional">
+                <li class="box">
+                {% if product.inventory != 'OS' %} <div class="order-arrow order-item">Order</div>{% endif %}
+                <div class="menu-slug">{{ product.slug }}</div>
+                <div class="menu-name">{{ product.name }}</div>
+                    <a href="/product/{{ product.slug }}/">
+                    <div class="image">
+                        <div class="food-image">
+                            <img src="{{ product.entree_image }}" />
+                          {% if product.inventory == 'OS' %} <span class="os"></span> {% endif %}
+                          {% if product.inventory == 'LS' %} <span class="ls"></span> {% endif %}
+                        </div>
+
+                        <div class="popover">
+                        <p>
+                            {{product.user_home_overlay|safe}}
+                        </p>
+                        </div>
+                    </div>
+                    <h3>{{ product.name }}</h3></a>
+                <p class="chef-name">{{product.chef_display}}</p>
+                </li>
+              </ul>
+            </div>
+            {% endif %}
+            {% endfor %}
+
+        </div>
+            
+
+        {% include "help.html" %}
+
+    </div>
+</div>
+{% endblock content %}
+
+
+{% block extra_js %}
+    {% if fb_sign_up %}
+    <script type="text/javascript" charset="utf-8">
+
+                    if (typeof _kmq != 'undefined') {
+                        _kmq.push(['record', 'signed up', {'plan level':'Beta Invite'}]);
+                        var _qevents = _qevents || [];
+                        _qevents.push(
+                            {qacct:"p-CtGRuC-swqzEZ",labels:"_fp.event.Beta Invite"}
+                        );
+                    }
+    </script>
+    {% endif %}
+
+{% if messages %}
+<script type="text/javascript">
+//<![CDATA[
+    var messageSelector = '.messages li';
+    var closeSelector = '.message-close';
+    var closeAllSelector = '.message-close-all';
+    $.fn.messageClose = function() {
+        $(this).fadeTo('fast', 0, function() {
+            $(this).hide('fast', function() {
+                $(this).remove();
+            });
+        });
+    };
+    $.fn.messageCloseTimeout = function(interval) {
+        var _this = $(this);
+        setTimeout(function() {
+            _this.messageClose();
+            var close = _this.find(closeSelector);
+            if (close.attr('href') != '#') {
+                $.ajax({
+                    url: $(this).attr('href')
+                })
+            }
+        }, interval)
+    };
+    $(closeSelector).click(function(event) {
+        event.preventDefault();
+        if ($(this).attr('href') != '#') {
+            $.ajax({
+                url: $(this).attr('href')
+            })
+        }
+        if ($(messageSelector).length <= 2) {
+            $(closeAllSelector).messageClose();
+        }
+        $(this).closest(messageSelector).messageClose();
+    });
+    $(closeAllSelector).click(function(event) {
+        event.preventDefault();
+        $.ajax({
+            url: $(this).attr('href')
+        })
+        $(this).messageClose();
+        $(messageSelector).messageClose();
+    });
+
+
+    $('.message-post button').live('click', function(e) {
+        var button = $(this);
+        var form = button.closest('form');
+        console.log("form: " + form);
+        console.log("button: " + this);
+        $.ajax({
+            type: 'POST',
+            url: form.attr('action'),
+            data: form.serializeArray(),
+            success: function(resp, textStatus) {
+                if (resp.success) {
+                    button.replaceWith("<p>You've skipped this month. Your credit card will not be charged, but you may still order at any time.</p>");
+                } else {
+                    form.submit();
+                }
+            },
+            error: function(xhr, textStatus, errorThrown) {
+                console.log('failed');
+                console.log(textStatus);
+                form.submit();
+            }
+
+        });
+        e.preventDefault();
+    });
+
+//]]>
+</script>
+{% endif %}
+
+
+{% endblock extra_js %}

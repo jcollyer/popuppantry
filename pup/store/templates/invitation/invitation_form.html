@@ -1,0 +1,90 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+
+ {% if not user.is_authenticated %}
+ <div class="user-not-authenticated"></div>
+ {% endif %}
+	
+	<div id ="invitation_content">
+
+       
+         
+	</div>
+
+	<div class="box20 clearfix">
+		 <h2 style="text-align:center">Dining is Better with Friends</h2>
+		<div class="box20leftside">
+				
+		        {% if success_text %}
+		        <p class="refer_friend"><strong>{{success_text}}</strong></p>
+		        {% endif %}
+		        <p class="refer_friend">Like your favorite restaurant, we rely on word-of-mouth and referrals from satisfied members. Unlike your favorite restaurant, we give you rewards every time you do so!</p>
+		        {% if referral_code.program.num_uses_for_free_meal %}
+		        <p class="refer_friend"> Invite friends to Pop-Up Pantry and you'll earn a FREE dinner for every two of them who make a first purchase. Dinner's on us just for sharing your good taste!</p>
+		        {% else %}
+		        <p class="refer_friend">Invite friends to Pop-Up Pantry and you'll earn ${{referral_code.program.money_off}} each time they make a first purchase. We'll also give each friend who joins ${{referral_code.program.money_off}} right away. It's a win-win!</p>
+
+		        {% endif %}
+		        
+					<img class="invite_pic" src="/static/img/invite1.png" alt="Invite Friends to Dinner" />
+
+        </div>   
+        <div class="box20rightside">  
+        	{% if user.is_authenticated %}
+		        <div class="invite_share">
+					<h3>Share on Facebook or Twitter</h3>
+					<div class="share_buttons">
+						<ul >
+							<li><a class="fbShare" href="https://www.facebook.com/dialog/feed?
+		                        app_id=387251307970706&
+		                        link={{ referral_code.bitly_url }}&
+		                        picture=&
+		                        name=Pop-Up%20Pantry&
+		                        caption=&
+		                        description=Enjoy%20delicious%20three-course%20meals%20delivered%20right%20to%20your%20door.%20Join%20me%20on%20Pop-Up%20Pantry.&
+		                        redirect_uri=http://popuppantry.com/invite/" target="_blank"></a>
+		                    </li>
+							<li><a class="twitShare" href="http://twitter.com/share?url={{ referral_code.bitly_url }}&text=Enjoy%20delicious%20three-course%20meals%20delivered%20right%20to%20your%20door.%20Join%20me%20on%20Pop-Up%20Pantry" target="_blank"></a> </li>
+						</ul>
+					</div>
+				</div>
+
+				<div class="share_divide">
+					<img src="/static/img/invite_divider_middle.png" width="416" height="30" alt="" style="margin-left:20px;" />
+				</div>
+			{% endif %}
+					<form action="{% url invitation_invite %}" method="POST"> {% csrf_token %}
+						<ul class="invite_form">				
+							  {{ form.as_ul }} 
+
+						</ul>
+						<input id="submit_invite" type="submit" value="Send Invites to Friends" class="orange_button_small" />
+					</form>
+				<br />
+				<br />
+				<br />
+		        <h4 class="center" style="width:400px; margin:37px 0 10px 20px;">YOU CAN ALSO COPY AND PASTE THIS PERSONAL REFERRAL LINK ANYWHERE</h4>
+		        <input type="text" title="referral_id" id="referral_id" value="{{ referral_code.bitly_url }}" /></input>
+
+		        <div class="clear">&nbsp;</div>
+		    </div>
+
+
+	</div>
+
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  //invite texarea click - remove text
+  $('#id_emails').click(function () {
+    $(this).val("");
+  });
+  </script>
+
+{% endblock %}
+
+

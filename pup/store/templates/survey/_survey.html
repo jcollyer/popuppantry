@@ -1,0 +1,42 @@
+{% comment %}
+Render single Survey-instance.
+
+expects:
+-------
+
+:param survey: `survey`-instance containing multiple form-instances
+               in `survey.forms`.
+
+               optional interface: `survey.image` (80x80px), `survey.title`,
+               `survey.description`,
+
+{% endcomment %}
+
+<article class="survey wizard-step">
+
+  {% if survey.title %}
+  <section class="survey-header clearfix">
+
+    {% if survey.image %}
+    <section class="survey-header-image align-left">
+      <img width="80" height="80" src="{{ survey.image }}" />
+    </section>
+    {% endif %}{# survey.image #}
+
+    <section class="survey-header-headings">
+      {% if survey.description %}
+      <h4>{{ survey.description }}</h4>
+      {% endif %}
+
+      <h3>{{ survey.title }}</h3>
+    </section>
+  </section><!-- .survey-header -->
+  {% endif %}{# survey.title #}
+
+  {% for question_form in survey.forms %}
+  <section class="question clearfix">
+    {{ question_form.as_template }}
+  </section><!-- .question -->
+  {% endfor %}
+
+</article><!-- .survey -->

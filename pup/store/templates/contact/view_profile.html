@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load satchmo_contact %}
+
+{% block content %}
+
+
+
+    <h2>Your Settings</h2>
+
+    <div class="account-overview">
+      <div class="box" id="cancel-overlay">
+        <h3>Are you sure you want to cancel your account?</h3>
+        <p></p>
+        
+        <div class="yes-no">
+          <a href="#" class="orange_button_small settings_button yes_button yes">Yes</a>
+          <a href="#" class="grey_button_small settings_button no_button no">No</a>     
+          <form action="/plans/deactivate" method="post" class="deactivate">
+            {% csrf_token %} 
+            <input type="submit" class="hidden" />
+          </form>     
+        </div>
+      </div>
+    
+    
+      {% if user_data %}
+        <div class="box">
+
+
+<!-- For testing buttons
+
+          <button class="orange_button">reg button</button>
+          <button class="orange_button_small">small button</button>
+          <button class="orange_button_tiny">tiny button</button>
+
+          <input type="submit" class="orange_button">
+          <input type="submit" class="orange_button_small">
+          <input type="submit" class="orange_button_tiny">
+
+          <div class="orange_button">reg div</div>
+           <div class="orange_button_small">small div</div>
+            <div class="orange_button_tiny">tiny div</div>
+
+
+          <a href="#" class="orange_button">normal</a> 
+           <a href="#" class="orange_button_small">Small</a> 
+            <a href="#" class="orange_button_tiny">tiny</a>  -->
+
+
+
+            <h5>Taste Profile</h5>
+            <div class="section">
+              <p>
+
+
+                {% if taste_profile %}
+                Your Taste Profile: <a href="/quiz/profile/{{taste_profile.slug}}">{{taste_profile.name}}</a>
+                Need to tweak your tastes? No problem. <a href="/quiz/">Swap in foods you enjoy for those you don't.</a> 
+
+
+                {% else %} 
+                
+                  You haven't created your Taste Profile yet.
+
+                {% endif %}
+              </p>
+            </div>
+            <div class="next-action">
+                {% if taste_profile %}
+                  <a href="/quiz/profile/{{taste_profile.slug}}" class="orange_button_small settings_button">View</a>
+                {% else %} 
+                  <a href="/quiz/{{taste_profile.slug}}" class="orange_button_small">Take Quiz</a>
+                {% endif %}
+
+            </div>
+
+        </div>
+
+
+
+          <div class="box">
+              <h5>Order History</h5>
+              <div class="section">
+                <p> See your recent shipments, and your upcoming meal delivieries.  </p>
+
+              </div>
+              <div class="next-action">
+                <a href="{% url satchmo_order_history %}" class="orange_button_small settings_button">{% trans "View" %}</a>
+              </div>
+
+          </div>
+
+
+          <div class="box">
+              <h5>Billing &amp; Contact Information</h5>
+
+              <div class="section">
+                {% with user_data.full_name as full_name %}
+                    {% blocktrans %}<strong>Name:</strong> {{ full_name }}{% endblocktrans %}<br />
+                {% endwith %}
+
+                <strong>E-Mail:</strong> {{ user_data.email }}<br/>
+                <br/>
+                <strong>Billing Address</strong><br/>
+                {% addressblock user_data.billing_address %}
+                <br/>
+                <strong>Shipping Address</strong><br/>
+                {% addressblock user_data.shipping_address %}
+
+                {% if contact.cim_id %}
+                                
+                    {% for f in contact.credit_cards %}
+                        <li>
+                            Card Number: {{ f.display_cc }}
+                        </li>
+                        <li>Exp Date: {{ f.expiration_date }}</li>
+                    {% endfor %}
+
+                {% endif %}
+
+              </div>
+
+              <div class="next-action">
+                <a href="{% url satchmo_profile_update %}" class="orange_button_small settings_button">{% trans "Edit" %}</a>
+              </div>
+
+          </div>
+
+          <div class="box">
+            <h5>Your Plan: {{ user_plan }} </h5>
+            <div class="section">
+              <p> View or change your Premiere Dining subscription plan.</p>
+
+             
+              {% if user_opt_out %}
+                You've skipped this month.
+              {% else %}
+                {% if allow_opt_out %}
+                <div class="opt-out">
+                  <span class="btn">Click here to skip this month.</span>
+                  <form name="changePlan" id="changePlan" method="post" action="/plans/submit/" >
+                    {% csrf_token %} 
+                    <input type="hidden" name="group" value="{{opt_out.id}}"/>
+                    <input type="hidden" name="ajax" value="True" />
+                  </form>
+                </div>
+
+              {% endif %}
+              {% endif %}
+              <br />
+              {% if user.is_active %}
+
+
+              <a href="#"  class="cancel-account">Cancel Your Account</a>
+              
+              {% else %}
+              
+              Your account has been cancelled
+              
+              {% endif %}
+              
+            </div>
+            
+            <div class="next-action">
+              <a href="/plans" class="orange_button_small settings_button">View Plans</a>
+            </div>
+
+
+          </div>
+
+
+      {% endif %}
+
+      <div class="box last">
+
+        {% if user_data %}
+          <p>
+              <a href="{% url auth_password_change %}">{% trans "Change your password" %}</a>
+          </p>
+        {% else %}
+          <p>
+            {% trans "Sorry, the user you've logged in as doesn't have any contact information." %}{% if request.user.is_staff %} {% trans 'Probably because you are an admin.' %}{% endif %}
+          </p>
+          <h5>{% trans "Account options" %}:</h5>
+          <p>
+              <a href="{% url satchmo_profile_update %}">{% trans 'Set up contact information' %}</a>
+              <br/>
+              <a href="{% url auth_password_change %}">{% trans "Change your password" %}</a>
+          </p>
+
+        {% endif %}
+
+          <a href="/accounts/logout">Log Out</a>
+
+      </div>
+    </div>
+    
+
+
+    {% include "help.html" %}
+
+{% endblock %}

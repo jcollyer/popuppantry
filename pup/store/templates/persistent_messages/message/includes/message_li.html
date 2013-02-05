@@ -1,0 +1,38 @@
+    {% if not message.read %}
+    {% if message.is_persistent %}
+    <li id="message-{{ message.pk }}" class="{{ message.tags }} {% if message.img %} has-image{% endif %} {{message.link_class}}">
+        <a class="close" href="{% if message.is_persistent %}{% url message_mark_read message.pk %}{% else %}#{% endif %}"><span>Hide this</span></a>
+
+        <div class="image">
+            {% if message.img %}
+                <img class="framed" src="/static/img/{{ message.img }}" alt="" />
+            {% else %}
+                <img src="/static/img/sidewalk-sign.png" width="66" height="55" alt="" />
+            {% endif %}
+        </div>
+
+        <div class="desc">
+        {% if message.subject %}
+            <h3 class="subject">{{ message.subject|safe }}</h3>
+        {% endif %}
+            <p>{{ message.message|safe }}</p>
+            {% comment %}
+            <p class="time">{{ message.created|date }}</p>
+            {% endcomment %}
+        </div>
+        {% if message.link %} 
+        <form class="message-post" action="{{message.link}}">
+            {% csrf_token %}
+            {% if message.link_post %}
+                {% for k,v in message.ajax_post_dict.items %}
+                    <input type="hidden" class="hidden" name="{{k}}" value="{{v}}" />
+                {% endfor %}
+            {% endif %}
+            <input type="hidden" class="hidden" name="dismiss-message" value="{{message.id}}" />
+            <input type="submit" class="hidden" />
+            <p><button class="submit {% if message.link_class %}{{message.link_class}}{% else %}default{% endif %}" type="submit"><span></span>{{message.link_text}}</button></p>
+        </form>
+        {% endif %}
+    </li>
+    {% endif %}
+    {% endif %}

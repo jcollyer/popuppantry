@@ -1,0 +1,15 @@
+{% extends "profiles/base.html" %}
+
+{# unstyled #}
+
+
+{% block title %}{% blocktrans with user_full_name=request.user.get_full_name %}Edit profile for {{ user_full_name }}{% endblocktrans %}{% endblock title %}
+
+{% block pagetitle %}{% blocktrans with user_full_name=request.user.get_full_name %}Edit profile for {{ user_full_name }}{% endblocktrans %}{% endblock pagetitle %}
+
+{% block content %}
+
+{{ profile.translate }}
+
+
+{% endblock content %}

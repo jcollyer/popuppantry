@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+            <h2>Pop-Up Pantry is a subscription club for food lovers, offering 3-course restaurant-quality dinners curated by top chefs, delivered to your door, all for less than the price of take-out.</h2>
+
+            <h3>Subscribe to join our exclusive beta preview.</h3>
+
+            <div class="index">
+
+            {% if user.is_authenticated %}
+                {% url satchmo_account_info as accounturl %}
+                {% if accounturl %}<a href="{{ accounturl }}"><div class="details">Account Details</a></div>{% endif %}
+                <a href="{{ logout_url }}?next={{request.path}}">Log out</a>
+            {% else %}
+                <span class="login"><a href="{{ login_url }}?next={{request.path}}">Log in</a></span>
+                or
+                {% url registration_register as registration_register %}
+                {% if registration_register %}
+                    <span class="register"><a href="{% url registration_register %}">Register</a></span>
+                {% endif %}
+            {% endif %}
+
+            </div>
+
+{% endblock content %}

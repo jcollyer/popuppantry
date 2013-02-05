@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block title %}
+	{{ flatpage.title }} | Pop-Up Pantry 
+{% endblock title %}
+
+{% block content %}
+
+		<div id="flatpage" class="about">
+
+
+
+
+
+
+
+
+		  <nav class="sub-nav">
+  		  <ul>
+    		  <li class="first"><a href="#company" class="selected" data-trigger="company">Company</a></li>
+    		  <li><a href="#origins" data-trigger="origins">Origins</a></li>
+    		  <li><a href="#faq" data-trigger="faq">FAQ</a></li>
+    		  <li><a href="#team" data-trigger="team">Team</a></li>
+    		  <li class="last"><a href="#chefs" data-trigger="chefs">Chefs</a></li>    		      		      		  
+  		  </ul>
+		 
+  		  <h2>About Us</h2>
+  		  
+  		  <a href="mailto:jobs@popuppantry.com" class="hiring"> </a>
+		  </nav>
+		  
+		 <div class="sections">
+
+
+		 {{ flatpage.content }}
+
+
+
+		 
+		  <div class="section" id="faq">
+
+		    <div class="side-bar">
+  		    <dl>
+    		    <dt>Need More Help?</dt>
+    		    <dd>Can't find what you're looking for? Email us at <a href="mailto:service@popuppantry.com">service@popuppantry.com</a><br /> or call 424-2-PANTRY for assistance.<br /><a href="http://service.popuppantry.com">Customer Service</a>
+    		    </dd>
+    		    
+    		    
+    		        		    
+    		    
+    		    
+  		    </dl>
+  		    
+		    </div>
+		    <div class="faq-listing">
+
+		      <ul>
+
+
+
+    		    {% for q in faq %}
+    		      <li>
+    		        <h5>{{q.question}}</h5>
+    		        <div class="answer">
+        		    <p>
+          		    {{q.answer|safe}}
+        		    </p>
+    		        </div>
+    		      </li>
+    		    {% endfor %}
+
+
+
+		      </ul> 
+
+		  
+  		  </div>
+		  </div>
+		 </div>
+
+		</div>
+
+
+{% endblock content %}
+
+
+{% block extra_js %}
+
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+
+    <script type="text/javascript" src="/static/js/jquery.hoverIntent.minified.js"></script>
+    <script type="text/javascript" charset="utf-8">
+
+      
+      
+      $(document).ready(function(){
+      
+      
+      
+        $('area').hoverIntent({
+          over: openToolTip,
+          timeout: 500,
+          out: closeToolTip
+          
+        });
+        
+        $('#team .box').click(function(){
+          $('.tooltip').fadeOut();
+          $('#team .box').css('backgroundPosition', '0 0');
+          
+        });
+        
+      });
+
+      function openToolTip() {
+
+        $('.tooltip').fadeOut();
+         var img_id = $(this).attr('href').replace(/#h/g,'');
+         var move_by = 326 * img_id;
+         $('#team .box').css('backgroundPosition', '0 -'+ move_by +'px');
+         $('.tip'+img_id).fadeIn();
+
+        
+      }
+      function closeToolTip() {
+      
+      }
+
+    </script>
+{% endblock extra_js %}
+
+
+
+
+
+

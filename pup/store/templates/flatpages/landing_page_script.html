@@ -1,0 +1,144 @@
+ <script language="JavaScript">
+   
+$(document).ready(function(){
+
+
+        $('input, textarea').placeholder();
+
+        //  function winWidth(){
+        //   windowWidth = $(window).width();
+        //   console.log(windowWidth);
+        // }
+        // $(window).resize(function(){
+        //   winWidth();
+        // })
+        // winWidth();
+
+             $('.landing_sign_up_button, .landing_section_img').click(function(){
+                 $('html, body').animate({ scrollTop: $('.landing_footer_form').offset().top}, 1500);
+                 var mask = $("#mask"), windowHeight = $(document).height(), windowWidth = $(window).width();
+                     $(mask).css({
+                    "width" : windowWidth,
+                    "height" : windowHeight
+                    });
+                    $(mask).fadeTo('slow', 0.6);
+                    $('.landing_footer_form').css("z-index","99999");
+                    
+                    return false;
+            });
+
+             $(document).bind('click', function (e) {
+                $('#mask').fadeOut();
+                });
+
+              $('.landing_form_ul li input').bind('click', function(e) {
+                e.stopPropagation();
+              });
+
+              $(document).keyup(function(e) {
+                // esc
+                if (e.keyCode == 27) { $('#mask').fadeOut(); }   
+              });
+  
+      $('.landing_form').submit(function(e) {
+
+        var passwordValue = $('.password1').attr('value');
+        $('.password2').val(''+passwordValue+''); 
+
+        var footerPasswordValue = $('.footer_password1').attr('value');
+        $('.footer_password2').val(''+footerPasswordValue+''); 
+
+
+
+        if ($(this).parent().hasClass('landing_footer_form')){
+           //alert('hi');
+          data = $('.landing_footer_form .landing_form').serializeArray();
+        }else{
+          data = $('.landing_form_top .landing_form').serializeArray();
+        }
+
+            $('.error_li').remove();
+            $('.error').remove();
+                var isFormValid = true;
+                var emailReg = /^([a-zA-Z0-9_\.\-\+])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+                var recipientEmail = $('#id_email').val();
+              
+             
+             //console.log(data);
+         
+             $.ajax({
+              type: 'POST',
+              url: '/accounts/betaregister/',
+              data: data,
+              success: function(resp, textStatus, result) {
+                $('.landing_error_li').remove();
+                //set_cookie(cookie_name,Data,expdate) 
+                  //console.log('success!')
+                  //console.log(resp);
+                  //return false;
+                    var reg = jQuery.parseJSON(resp);
+                   // console.log(reg);
+                   // console.log(reg['errors']);
+                    if(reg['errors']) {
+
+                      $.each(reg['errors'], function(i, value) {
+                        if (typeof _kmq != 'undefined') {
+                            _kmq.push(['record', 'Registration Error', {'error':value['error']}]);
+                        }
+                          // non field form error
+                          if(value['field_name'] == "N/A") {
+                              return;
+                           //alert('hi');
+                          }
+                          else {
+                              //$(".landing_sign_up_errors").append("<div class='error'>" + value['error'] + "</div>");
+                              //$(".landing_sign_up #id_" + value['field_name']).addClass("error");
+                              $(".landing_sign_up #id_" + value['field_name']).parent().before("<li class='landing_error_li'><div class='error'>" + value['error'] + "</div></li>");
+                              $('.landing_footer_form .error').css("color", "#eee");
+                          }
+                          
+                      });
+                        $('input[type=submit]').removeAttr("disabled");
+                    }
+                    else {
+                        // Do this when everything is successful
+                           if (typeof _kmq != 'undefined') {
+                                _kmq.push(['record', 'signed up', {'plan level':'Beta Invite'}]);
+                                var _qevents = _qevents || [];
+                                _qevents.push(
+                                    {qacct:"p-CtGRuC-swqzEZ",labels:"_fp.event.Beta Invite"}
+                                );
+                           window._gaq.push(['_trackEvent', 'Registration', 'Submit', 'Create Account']); 
+            
+                            }
+                       window.location.href = "/";
+                    }
+              //$('.loading').remove();
+               //window.location.href = "/accounts";
+              },
+
+              error: function(xhr, textStatus, errorThrown){
+                  console.log('failed');
+                  console.log(textStatus);
+              }              
+
+          });
+      return false;
+       });
+
+
+          $('.landing_footer_form input').click(function(){
+              
+            //$('.landing_form_top').remove();
+            //$('#landing_form input').attr('name', '');
+          });
+ 
+
+  });
+
+setTimeout(function(){var a=document.createElement("script");
+var b=document.getElementsByTagName("script")[0];
+a.src=document.location.protocol+"//dnn506yrbagrg.cloudfront.net/pages/scripts/0012/9984.js?"+Math.floor(new Date().getTime()/3600000);
+a.async=true;a.type="text/javascript";b.parentNode.insertBefore(a,b)}, 1);
+
+ </script>

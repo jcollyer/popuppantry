@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+    <div id="home">
+
+      <div class="display box">
+
+        <ul class="carousel">
+          <li>
+            <a href="/home"><img src="/static/img/hp_box.jpg" alt="" class="" /></a>
+          </li>
+          <li>
+            <a href="/gifts"><img src="/static/img/hp_gifting.jpg" alt="" class="" /></a>
+          </li>
+          <li>
+            <a href="/home"><img src="/static/img/hp_beekman.jpg" alt="" class="register-modal" /></a>
+          </li>
+          <li>
+            <a href="/home"><img src="/static/img/hp_holiday_feast.jpg" alt="" class="register-modal" /></a>
+          </li>
+          <li>
+            <a href="/home"><img src="/static/img/hp_burtka.jpg" alt="" class="register-modal" /></a>
+          </li>
+          <li>
+            <a href="/home"><img src="/static/img/hp_pork.jpg" alt="" class="register-modal" /></a>
+          </li>
+
+        </ul>
+
+      </div>
+
+      <div class="steps">
+        <h2>You've got great taste</h2>
+        <div class="divider2"></div>
+        <p>Pop-Up Pantry delivers exquisite 3-course restaurant-quality dinners crafted by top chefs to your door &mdash; for the price of takeout.</p>
+        
+        <p class="fineprint">Complete gourmet dinners with simple preparation on your dining table in fewer than 30 minutes.<br /> 
+New, delicious and exclusive menus to try every month.
+ 
+</p>
+          <a href="/home">
+            <div class="get-started" style="padding-top:15px; height:44px;"> <div class="get-started-arrow"></div>GET STARTED!</div>
+          </a>
+      
+        
+      </div>
+
+      <div class="value-props">
+        <div class="value-props-div"> 
+           <img src="{{ media_url }}img/circle_1.png" width="120" height="120" />
+           <h4>
+             <a href="/home" class="">TOP CHEFS</a>
+           </h4>
+           <p>
+             World-class chefs craft new 3-course menus every month that will delight and surprise you. Discover new dishes or enjoy classic favorites. 
+
+           </p>
+           <a href="/home" class="learn-more">See Menus</a>
+        </div>
+        <div class="value-props-div">   
+           <img src="{{ media_url }}img/circle_2.png" width="120" height="120" />
+           <h4>
+             <a href="/home" class="">GREAT VALUE</a>
+           </h4>
+           <p>
+             Save the time and money you’d spend dining out without compromising your good taste. We deliver a true restaurant experience to your home. 
+
+
+           </p>
+           <a href="/home" class="learn-more">Learn More</a>
+        </div>
+        <div class="value-props-div"> 
+           <img src="{{ media_url }}img/circle_3.png" width="120" height="120" />
+           <h4>
+             <a href="/home" class="">FLAWLESS FOOD</a>
+           </h4>
+           <p>
+             We use incredible ingredients and restaurant cooking techniques, yet you can still easily prep a delicious dinner in under 30 minutes. 
+
+           </p>
+           <a href="/home" class="learn-more">Get Started</a>
+        </div>
+
+        
+      </div>
+
+
+
+
+
+      <div class="categories">
+      {% for product in my_menus %}
+      {% if product.active %}
+      
+        <div class="box{% if forloop.counter|divisibleby:3 %} last {% endif %} home_box">
+          <div class="home_product_slug" style="display:none;">{{ product.slug }}</div>
+          <div class="order-home-arrow">Order</div>
+              <img src="{{ product.entree_image }}" />
+
+                {% if product.inventory == 'OS' %} <span class="os"><p class="button_text">SOLD<br /><span class="button_bigger_text">OUT</span></p></span> {% endif %}
+                {% if product.inventory == 'LS' %} <span class="ls"><p class="button_text">RUNNING<br /><span class="button_bigger_text">LOW</span></p></span> {% endif %}
+
+
+            <div class="popover">
+              <p>
+                {{product.user_home_overlay|safe}}
+              </p>
+            </div>
+
+          <h3>{{ product.name }}</h3>
+          <p class="chef-name">{{product.chef_display}}</p>
+        </div>
+        
+      {% endif %}
+      {% endfor %}
+      </div>
+
+
+
+
+    </div>
+
+{% endblock content %}
+
+{% block extra_js %}
+    <script src="/static/js/jquery.bxSlider.min.js"></script>
+    <script>
+        var carousel = $('.carousel'); 
+        carousel.bxSlider({
+          auto: true,
+          speed: 1000,
+          pause: 6000,
+          pager: true,
+          pagerActiveClass: 'active',
+          controls: false
+        });
+  </script>
+{% endblock extra_js %}
+
+

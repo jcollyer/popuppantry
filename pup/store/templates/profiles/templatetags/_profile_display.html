@@ -1,0 +1,13 @@
+<div class="profile-display" id="profile-display-{{ profile.username }}">
+    <div class="profile-avatar">
+        <a href=""><img src="{{ profile.avatar }}" /></a>
+    </div>
+    <div class="profile-info">
+        <span class="profile-link">{{ profile.get_profile_link|safe }}</span>
+        {% with profile.translate as translate %}
+            <span class="profile-title">{{ translate.title }}</span>
+            <!-- TODO make bio a rollover via JQuery -->
+            <span class="profile-bio">{{ translate.bio }}</span>
+        {% endwith %}
+    </div>
+</div>

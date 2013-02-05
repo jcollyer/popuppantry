@@ -1,0 +1,29 @@
+{% comment %}
+
+    Common profile actions that allows one user to interact with another user.
+    Known referencing pages:
+
+      - profile_detail.html
+      - profile_list.html
+
+{% endcomment %}
+
+{# unstyled #}
+
+{% load i18n %}
+
+<ul>
+  {% if request.user.pk == profile.user.pk %}
+      <li><a href="{% url profile_edit %}">{% trans "edit" %}</a></li>
+  {% else %}
+      <li><a href="{% url group_invite profile.user.username %}">{% trans "Invite to my groups" %}</a></li>
+      {% if profile.user in my_profile.follows %}
+          <!-- TODO: make AJAXy -->
+          <li><a href="{% url unfollow_user profile.user %}">{% trans "Unfollow" %}</a></li>
+      {% else %}
+          <!-- TODO: make AJAXy -->
+          <li><a href="{% url follow_user profile.user %}">{% trans "Follow" %}</a></li>
+      {% endif %}
+      <li><a href="{% url message_compose_profile profile.user.username %}">{% trans "Send message" %}</a></li>
+  {% endif %}
+</ul>

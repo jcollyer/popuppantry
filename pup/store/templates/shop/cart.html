@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load satchmo_cart %}
+{% load satchmo_currency %}
+{% load satchmo_util %}
+{% load satchmo_product %}
+{% load satchmo_discounts %}
+{% load normalize_decimal %}
+
+{% block content %}
+
+    <h2>Your Cart</h2>
+
+    <div class="checkout box">
+
+        <div class="order">
+
+            <strong>Order Summary</strong>
+
+            {% if error_message %}
+            <div class="error">{{ error_message }}</div>
+            {% endif %}
+
+            {% if messages %}
+                {% for message in messages %}
+                    <p{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
+                {% endfor %}
+            {% endif %}
+
+            <p><a href="/plans">Click here to view your plan</a> - <a href="/">Click here to view menus</a></p>
+
+            {% if not cart|length %}
+                <h3>Your cart is empty</h4>
+            {% else %}
+
+            <ul class="section">
+            {% for cartitem in cart %}
+                <li>
+                    
+                    <h4><a href="{{cartitem.product.get_absolute_url}}">{{ cartitem.description }}</a></h4>
+                    <form action="{% url satchmo_cart_remove %}" method="post"> {% csrf_token %}
+                        <input type="hidden" name="cartitem" value="{{ cartitem.id }}" />
+                        <input type="submit" class="remove" value="x" />
+                    </form>
+                    <form class="qtyform" id="form-{{ cartitem.id }}" action="{% url satchmo_cart_set_qty %}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="cartitem" value="{{ cartitem.id }}" />
+                        <input type="text" name="quantity" class="quantity" value="{{ cartitem.quantity|normalize_decimal }}" />
+                        <input type="submit" id="id_update_submit" value="{% trans 'update amount' %}" />
+                    </form>
+                    <br/>
+                    Cost: {{ tier.price|currency }}
+                    {% cartitem_custom_details cartitem %}
+                    {% cartitem_subscription_details cartitem %}
+                </li>
+            {% endfor %}
+            </ul>
+
+            <div class="section">
+
+                <div class="line-items">
+
+                    Cart Total
+
+                </div>
+
+                <div class="price">
+                    {{ cart|discount_cart_total:sale|currency }}
+                </div>
+
+                <div class="check-out button">
+                    <a href="{% url satchmo_checkout-step1 %}">Check Out</a>
+                </div>
+            </div>
+
+            {% endif %}
+
+        </div>
+
+
+
+        <div class="info">
+            
+            {# <strong>Personal Info</strong> #}
+
+
+
+        </div>
+
+    </div>
+
+{% endblock %}
